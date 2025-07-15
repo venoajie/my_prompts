@@ -1,0 +1,141 @@
+[MANDATE: GENERATE_GUIDED_SESSION_HANDOFF]
+
+The current session is concluding. Your final task is to generate a complete "Session Handoff Package" for the next development session, ensuring full continuity.
+
+**Your analysis must be guided by my stated `[NEXT_ACTION_FOCUS]`.**
+
+[NEXT_ACTION_FOCUS]
+<-- HERE, YOU, THE USER, WILL STATE THE NEXT GOAL. Example: "The next step is to fix the newly discovered bug in the receiver." OR "The next step is to start implementing the data pruning feature." -->
+
+[HANDOFF PACKAGE REQUIREMENTS]
+
+1.  **Select & Justify Persona:** Based on my `[NEXT_ACTION_FOCUS]`, select the single most appropriate persona from the library (`SIA-1`, `PBA-1`, `CSA-1`, etc.). State which persona you chose and provide a one-sentence justification.
+2.  **Persona Placeholder:** Include the placeholder `[PLACEHOLDER: PASTE PERSONA HERE]`.
+3.  **Blueprint Placeholder:** Include the placeholder `[PLACEHOLDER: PASTE PROJECT_BLUEPRINT.md HERE]`.
+4.  **Session Synthesis:** Briefly summarize the accomplishments and final state of the *previous* session.
+5.  **Forward-Looking Mandate:** Formulate a clear, actionable mandate for the next session that is directly aligned with my `[NEXT_ACTION_FOCUS]`. This mandate should include specific objectives and a recommended first action (e.g., "Begin by requesting file X.").
+
+[OUTPUT FORMAT]
+Generate the Handoff Package as a single, copy-pasteable markdown code block.
+
+Example in Practice
+Let's say you just finished implementing the "Dynamic Subscription Control" feature (CSA-1 persona). You now want to pivot to auditing its security.
+Your Final Prompt:
+
+[MANDATE: GENERATE_GUIDED_SESSION_HANDOFF]
+
+[NEXT_ACTION_FOCUS]
+The new subscription control feature is functionally complete. The next step is to perform a security audit on the new code before it can be considered for deployment.
+
+That's an excellent question that gets to the heart of operationalizing this entire workflow. Your intuition is correct, but the execution needs to be precise to be effective.
+
+Simply choosing a persona and asking the model to "create a prompt based on it" is a good starting point, but it's not robust. It leaves too much room for ambiguity and can lead to a generic, low-quality output.
+
+To achieve the high-fidelity continuity you're looking for, we must use the structured mandate we designed previously: the **`GENERATE_SESSION_HANDOFF`** mandate. However, we will now refine it to explicitly incorporate your role in selecting the next persona.
+
+---
+
+### Systematic Critique of the Simplified Approach
+
+Let's analyze the idea: "choose one of the personas above and ask the model to create the prompt."
+
+*   **Strengths:**
+    *   **Intent is Correct:** You have correctly identified that the *next task* dictates the *next persona*, which is a crucial insight.
+
+*   **Areas for Enhancement:**
+    *   **Risk of Ambiguity (Clarity):** A vague request like "Create a prompt for the `SIA-1` persona" doesn't give the AI enough context. A prompt *for what?* Based on what information? The AI would be forced to guess the next task, leading to a useless handoff.
+    *   **Loss of Session Context (Robustness):** The most valuable input for the *next* session's prompt is the complete context of the *current* session (the bug you just fixed, the new problems you uncovered). Your simplified approach doesn't explicitly tell the AI to use this context.
+    *   **Procedural Inefficiency (Effectiveness):** This approach would force you to manually explain the context from the current session every single time. Our goal is to have the AI do that work *for* you.
+
+---
+
+### The Correct Workflow: The "Guided Handoff"
+
+The optimal process is a precise two-step sequence at the end of your session. You don't just tell the AI which persona to use; you guide its synthesis process using the mandates we've already architected.
+
+#### **Step 1: Synthesize the Current Session (`END_OF_SESSION_SYNTHESIS`)**
+
+First, you run the synthesis mandate as we defined. This forces the AI to structure its knowledge of what just happened, which is a critical prerequisite for planning what's next.
+
+#### **Step 2: Generate the Guided Handoff (`GENERATE_SESSION_HANDOFF`)**
+
+This is where your new insight comes in. Instead of the AI guessing the next step, **you guide it.** Here is the refined V2.0 of the handoff mandate that incorporates your direction.
+
+```
+[MANDATE: GENERATE_GUIDED_SESSION_HANDOFF]
+
+The current session is concluding. Your final task is to generate a complete "Session Handoff Package" for the next development session, ensuring full continuity.
+
+**Your analysis must be guided by my stated `[NEXT_ACTION_FOCUS]`.**
+
+[NEXT_ACTION_FOCUS]
+<-- HERE, YOU, THE USER, WILL STATE THE NEXT GOAL. Example: "The next step is to fix the newly discovered bug in the receiver." OR "The next step is to start implementing the data pruning feature." -->
+
+[HANDOFF PACKAGE REQUIREMENTS]
+
+1.  **Select & Justify Persona:** Based on my `[NEXT_ACTION_FOCUS]`, select the single most appropriate persona from the library (`SIA-1`, `PBA-1`, `CSA-1`, etc.). State which persona you chose and provide a one-sentence justification.
+2.  **Persona Placeholder:** Include the placeholder `[PLACEHOLDER: PASTE PERSONA HERE]`.
+3.  **Blueprint Placeholder:** Include the placeholder `[PLACEHOLDER: PASTE PROJECT_BLUEPRINT.md HERE]`.
+4.  **Session Synthesis:** Briefly summarize the accomplishments and final state of the *previous* session.
+5.  **Forward-Looking Mandate:** Formulate a clear, actionable mandate for the next session that is directly aligned with my `[NEXT_ACTION_FOCUS]`. This mandate should include specific objectives and a recommended first action (e.g., "Begin by requesting file X.").
+
+[OUTPUT FORMAT]
+Generate the Handoff Package as a single, copy-pasteable markdown code block.
+```
+
+---
+
+### Example in Practice
+
+Let's say you just finished implementing the "Dynamic Subscription Control" feature (`CSA-1` persona). You now want to pivot to auditing its security.
+
+**Your Final Prompt:**
+
+```
+[MANDATE: GENERATE_GUIDED_SESSION_HANDOFF]
+
+[NEXT_ACTION_FOCUS]
+The new subscription control feature is functionally complete. The next step is to perform a security audit on the new code before it can be considered for deployment.
+```
+
+**AI's Expected Output (The Handoff Package):**
+
+> ```markdown
+> <!-- SESSION HANDOFF PACKAGE | Generated: 2025-07-16 -->
+>
+> <!--
+> PERSONA SELECTION:
+> -   **Selected Persona:** SVA-1 (Security Vulnerability Auditor)
+> -   **Justification:** The stated next action is a security audit, which is the specific, singular mission of the SVA-1 persona.
+> -->
+>
+> [CONTEXT: SYSTEM & ARCHITECTURE]
+> You are an expert AI developer working on "MY TRADING APP". Your understanding of the system architecture is defined by the blueprint below.
+>
+> [PLACEHOLDER: PASTE PERSONA HERE]
+> [PLACEHOLDER: PASTE PROJECT_BLUEPRINT.md HERE]
+>
+> ---
+> [CONTEXT: SESSION SYNTHESIS & CURRENT STATE]
+> In the previous session, the "Dynamic Subscription Control" feature was implemented for the `receiver` service. This added a new Redis Pub/Sub channel (`control:binance:subscriptions`) to the system's architecture, allowing for on-the-fly subscription changes. The blueprint has been updated to Version 2.1 to reflect this.
+>
+> **Current State:** The feature is functionally complete but has not undergone a security review.
+>
+> ---
+> [MANDATE: NEXT STEPS]
+> Your mandate is to perform a security audit on the newly implemented "Dynamic Subscription Control" feature. Your focus is exclusively on identifying security vulnerabilities in the code that handles this new functionality.
+>
+> **Protocol:**
+> Adhere to the `SVA-1` persona's "Systematic Scan" protocol. Correlate the code to the blueprint, focusing on how the new Redis Pub/Sub input is handled by the `receiver` service.
+>
+> Begin by requesting the code for the primary files modified in the last session: `src/services/receiver/main.py` and `src/services/receiver/exchange_clients/binance_ws_client.py`.
+> ```
+
+### Rationale for This Approach
+
+This "Guided Handoff" workflow is superior because it perfectly blends human strategic direction with AI tactical execution.
+
+1.  **Human in the Loop (Effectiveness):** You, the user, provide the high-level strategic goal (`NEXT_ACTION_FOCUS`). This is the one piece of information the AI cannot reliably guess.
+2.  **AI as Synthesizer (Clarity & Robustness):** The AI takes your strategic goal and does the laborious work of weaving it into a perfectly structured, context-rich, single-turn prompt for the next session.
+
+This is the pinnacle of the PEL workflow: you are not just using the AI; you are directing the AI to build the tools you will use to direct it in the future.
