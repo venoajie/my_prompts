@@ -1,0 +1,22 @@
+[MANDATE: GENERATE_SESSION_HANDOFF]
+
+The current session is concluding. Your final task is to generate a complete "Session Handoff Package." This package will be used as the initialization prompt for the next development session, ensuring full continuity.
+
+The Handoff Package must be a single, self-contained prompt structured for maximum effectiveness. It must adhere to the "Blueprint-Centric" methodology.
+
+[HANDOFF PACKAGE REQUIREMENTS]
+
+1.  **Persona Placeholder:** Include a placeholder for the appropriate persona. Based on the next steps, recommend which persona (`AD-1` Diagnostician or `FD-1` Feature Developer) should be used, but the prompt must contain the placeholder `[PLACEHOLDER: PASTE PERSONA HERE]`.
+
+2.  **Blueprint Placeholder:** Include a placeholder for the canonical architecture: `[PLACEHOLDER: PASTE PROJECT_BLUEPRINT.md HERE]`.
+
+3.  **Session Synthesis (The "What Happened"):**
+    *   Provide a concise summary of the accomplishments of this session (use the output from the previous `END_OF_SESSION_SYNTHESIS`).
+    *   Crucially, describe the *current state* of the codebase resulting from these changes.
+
+4.  **Forward-Looking Mandate (The "What's Next"):**
+    *   Analyze the session (including the updated Roadmap) and identify the immediate next steps, outstanding bugs, or necessary refactorings.
+    *   Formulate a clear, actionable mandate for the next session based on these steps.
+
+[OUTPUT FORMAT]
+Generate the Handoff Package as a single, copy-pasteable markdown code block.
