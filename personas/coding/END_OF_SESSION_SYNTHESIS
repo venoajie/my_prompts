@@ -1,0 +1,16 @@
+[MANDATE: END_OF_SESSION_SYNTHESIS]
+
+The active development task is now complete. Based on the entire session context, perform a final synthesis.
+
+1.  **Summarize the Accomplishment:** Provide a concise, one-paragraph summary of the problem and the implemented solution. This will serve as the basis for a commit message.
+
+2.  **Generate `ROADMAP.md` Update:** Analyze the work done and generate a patch to update the `PROJECT_ROADMAP.md` file. Identify the relevant task and change its `[STATUS:]` tag appropriately (e.g., from `IN_PROGRESS` to `COMPLETE`). Output the full, updated line item.
+
+3.  **Perform Architectural Impact Analysis:** Critically analyze the changes made during this session. Answer the following question with a clear "YES" or "NO":
+    *   **Question:** Did the changes alter a core architectural component, interaction flow, or data contract as defined in the `PROJECT_BLUEPRINT.md`? (e.g., a new service was added, a Redis key schema changed, a service's core responsibility was modified).
+
+4.  **Generate `BLUEPRINT.md` Patch (If Necessary):**
+    *   If your answer to the impact analysis was "NO" (e.g., it was a simple bug fix within existing logic), state: "No architectural changes detected. Blueprint remains at Version 2.0."
+    *   If your answer was "YES", generate the specific, targeted `diff` or replacement section required to update the `PROJECT_BLUEPRINT.md`. Propose a version increment (e.g., to `Version: 2.1`).
+
+Provide a clean, copy-pasteable output for each section.
