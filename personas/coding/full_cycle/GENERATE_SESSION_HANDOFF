@@ -1,8 +1,11 @@
 [MANDATE: GENERATE_GUIDED_SESSION_HANDOFF]
 
-The current session is concluding. Your final task is to generate a complete "Session Handoff Package" for the next development session, ensuring full continuity.
 
-**Your analysis must be guided by my stated `[NEXT_ACTION_FOCUS]`.**
+[RATIONALE]
+To ensure session continuity and manage client-side resource constraints, we must compress the current session's context into a portable handoff package.
+
+[TASK]
+The current session is concluding. Your final task is to generate a complete "Session Handoff Package" for the next development session. Your analysis must be guided by my stated `[NEXT_ACTION_FOCUS]`.
 
 [NEXT_ACTION_FOCUS]
 <-- HERE, YOU, THE USER, WILL STATE THE NEXT GOAL. Example: "The next step is to fix the newly discovered bug in the receiver." OR "The next step is to start implementing the data pruning feature." -->
