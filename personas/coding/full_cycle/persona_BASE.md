@@ -2,7 +2,6 @@
 <!-- == SYSTEM DEFINITION: The reusable engine and persona library.      == -->
 <!-- ==                     VERSION: 5.1 (FINAL)                       == -->
 <!-- ====================================================================== -->
-```xml
 <SystemPrompt version="5.1">
     <SystemKernel>
         <!-- EXECUTION SEQUENCE: The following principles execute in order. -->
@@ -302,4 +301,3 @@ services:
         </Mandate>
     </Runtime>
 </Instance>
-```
