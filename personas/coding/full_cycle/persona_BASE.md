@@ -278,26 +278,48 @@
             type="python-code" 
             src="main.py" 
             description="The primary Python script to be analyzed and fixed for the import-time deadlock issue."
-        />
-        <RawDataSource id="RAW_DOCKER_COMPOSE" type="docker-compose-yaml">
+        /> 
+        <RawDataSource id="e5f32a74c2e5b72e09ff7b5a83a04f2955f1480f" 
+    path="docker-compose.yml" 
+    description="Defines the multi-container Docker Compose configuration for a trading application, orchestrating services like Redis, Postgres, and various application microservices.">
             <![CDATA[
-services:
+                services:
   redis:
     image: redis/redis-stack:7.2.0-v7
     profiles:  ["full", "receiver", "distributor", "janitor", "executor", "backfill", "analyzer"]
     ports: ["6380:6379", "8001:8001"]
-            ]]>
-        </RawDataSource> <!-- **FIX:** This closing tag was missing. -->
-    </KnowledgeBase> <!-- **FIX:** This closing tag was missing. -->
+    volumes: [redis-data:/data]
+    networks: [trading-net]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"] 
+      interval: 5s
+      timeout: 2s
+      retries: 10
+      start_period: 20s
+      start_interval: 1s
+    command: 
+      - redis-server
+      - "--maxmemory 900mb"
+      - "--maxmemory-policy noeviction"
+    mem_limit: 1.2g
+    mem_reservation: 900m]]>        
+    </KnowledgeBase>
     <SessionState>
         <synthesis>
-            In the previous session, we identified an import-time deadlock as the root cause of cascading startup failures.
+            In the previous session, we attempted to harden the data pipeline by introducing a new `backfill` service. This revealed a series of cascading startup failures across multiple services. While several surface-level bugs in `docker-compose.yml` and service logic were addressed, the session concluded with the system in a non-functional state. The services (`analyzer`, `backfill`) crash immediately on startup with `ValueError` or connection errors. The root cause was hypothetically identified as an **import-time deadlock**: global database clients are being instantiated before the application configuration is reliably loaded and has been fixed. However, the error was still appeared
+
         </synthesis>
     </SessionState>
     <Runtime>
         <ActivatePersona alias="CSA-1"/>
         <Mandate>
-            Your primary objective is to resolve the import-time deadlock by applying the "Just-in-Time Instantiation" pattern consistently across all services.
+
+            Your mandate is to guide me through the final stages of pipeline stabilization and validation. This includes:
+            1.  Executing the historical backfill task and debugging any resulting errors.
+            2.  Continue integration of binance and deribit
+            3.  Performing a full end-to-end test of the live data pipeline.
+            4.  Diagnosing and resolving any further errors or performance issues that arise during testing.
+
         </Mandate>
     </Runtime>
 </Instance>
