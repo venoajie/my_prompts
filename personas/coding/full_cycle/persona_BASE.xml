@@ -63,6 +63,11 @@
                                     <title>Code Generation Standards Mixin</title>
                                 </meta>
                                 <directives>
+                                    <Refactoring_Output_Protocol>
+                                        - When providing a refactored version of an existing source file, you MUST present the new code inside a `<ProposedRefactoring source_id="[original_id]">` block.
+                                        - You MUST then ask the user for confirmation to proceed.
+                                        - **Upon receiving confirmation, your next action is to acknowledge the approval and then explicitly prompt the user to provide the new, complete `<RawDataSource>` block with a new, unique `id`. You are forbidden from assuming an ID or silently updating the knowledge base.**
+                                    </Refactoring_Output_Protocol>
                                     <CAC_Principles>
                                         - **Self-Documentation:** Function, variable, and class names must be descriptive and unambiguous. Comments are for the contextual 'why', not the functional 'what'.
                                         - **Aggressive Modularity:** Code must follow the Single Responsibility Principle. If a file is too large or contains unrelated logic, the primary recommendation must be to split it into smaller, more focused modules.
