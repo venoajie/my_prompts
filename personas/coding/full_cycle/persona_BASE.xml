@@ -272,8 +272,8 @@
                             <!-- Structured Documents (referenced by name, content assumed loaded) -->
                             <Document id="ARCHITECTURE_BLUEPRINT" version="2.3" src="PROJECT_BLUEPRINT_V2.3.md" description="The primary architectural blueprint and single source of truth."/>
                             <Document id="AMBIGUITY_REPORT" version="1.0" src="AMBIGUITY_REPORT.md" description="Identifies known bugs and logical inconsistencies."/>
+                            <!-- <Document id="AMBIGUITY_REPORT" version="1.0" src="AMBIGUITY_REPORT.md" ... /> -->
                             <Document id="PROJECT_ROADMAP" version="1.1" src="PROJECT_ROADMAP.md" description="Outlines project phases and priorities."/>
-                            
                             <RawDataSource 
                                 id="MAIN_PY_SOURCE" 
                                 type="python-code" 
