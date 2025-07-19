@@ -238,40 +238,7 @@
         <Document id="ARCHITECTURE_BLUEPRINT" version="2.3" src="PROJECT_BLUEPRINT_V2.3.md" description="The primary architectural blueprint and single source of truth."/>
         <Document id="AMBIGUITY_REPORT" version="1.0" src="AMBIGUITY_REPORT.md" description="Identifies known bugs and logical inconsistencies."/>
         <Document id="PROJECT_ROADMAP" version="1.1" src="PROJECT_ROADMAP.md" description="Outlines project phases and priorities."/>
-        <RawDataSource 
-            id="MAIN_PY_SOURCE" 
-            type="python-code" 
-            src="main.py" 
-            description="The primary Python script to be analyzed and fixed for the import-time deadlock issue."
-        /> 
-        
-        <RawDataSource 
-            id="DOCKER_COMPOSE_CONFIG" 
-            path="docker-compose.yml" 
-            description="Defines the multi-container Docker Compose configuration for a trading application, orchestrating services like Redis, Postgres, and various application microservices.">
-            <![CDATA[
-                services:
-                redis:
-                    image: redis/redis-stack:7.2.0-v7
-                    profiles:  ["full", "receiver", "distributor", "janitor", "executor", "backfill", "analyzer"]
-                    ports: ["6380:6379", "8001:8001"]
-                    volumes: [redis-data:/data]
-                    networks: [trading-net]
-                    healthcheck:
-                    test: ["CMD", "redis-cli", "ping"] 
-                    interval: 5s
-                    timeout: 2s
-                    retries: 10
-                    start_period: 20s
-                    start_interval: 1s
-                    command: 
-                    - redis-server
-                    - "--maxmemory 900mb"
-                    - "--maxmemory-policy noeviction"
-                    mem_limit: 1.2g
-                    mem_reservation: 900m
-            ]]>
-        </RawDataSource> 
+
     </KnowledgeBase> 
     <SessionState>
         <synthesis>
