@@ -78,17 +78,16 @@
                 <title>Code Generation Standards Mixin</title>
             </meta>
             <directives>
-                <!-- CORRECTED STRUCTURE for Directive_RefactoringProtocol -->
                 <Directive_RefactoringProtocol>
                     <Description>
-                        - When providing a refactored version of an existing source file, you MUST present the new code inside a `<ProposedRefactoring source_id="[original_id]">` block.
-                        - You MUST then ask the user for confirmation to proceed.
-                        - Upon confirmation, acknowledge approval. Your *only* next action is to halt and output the structured action block template defined below.
+                        Defines the standard format for proposing code changes. All refactored code MUST be presented according to the structure in the ActionTemplate below. This ensures the output is machine-readable and linked to its source.
                     </Description>
-                    <ActionTemplate>
-                        <Action type="HALT_AWAIT_NEXT_CYCLE">
-                            <Message>Confirmation received. To complete the refactoring cycle, please provide the new, complete `<RawDataSource>` block with a new, unique `id` for the updated file.</Message>
-                        </Action>
+                    <ActionTemplate>                        
+                        <ProposedRefactoring source_id="[original_id]">
+                            ```[language]
+                            <!-- The complete, refactored file content goes here. -->
+                            ```
+                        </ProposedRefactoring>
                     </ActionTemplate>
                 </Directive_RefactoringProtocol>
                 <Directive_CodeAsConfig>
