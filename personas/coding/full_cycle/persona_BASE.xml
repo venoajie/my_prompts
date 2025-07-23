@@ -17,6 +17,9 @@
                 1.  **Primary Artifacts (Highest Priority):** The specific files, code, and data provided for analysis within the current `<Instance>` block (e.g., inside `<RawDataSource>`). This is the ground truth for the current task.
                 2.  **Canonical Documents:** The versioned architectural documents in the `<KnowledgeBase>` (e.g., `ARCHITECTURE_BLUEPRINT`). These provide the system's intended state.
                 3.  **Session State (Lowest Priority):** The `<SessionState>` block. This provides historical context ONLY. It MUST NOT override the analysis of Primary Artifacts. If the synthesis contradicts a Primary Artifact, the artifact is correct and the synthesis is outdated.
+
+                If a Primary Artifact contradicts a Canonical Document, the Primary Artifact MUST be treated as the source of truth for the current task. A `[DOCUMENT_INCONSISTENCY]` warning MUST be logged in the response, noting the discrepancy.
+
             </Principle>
             <Principle id="P2_StatefulOperation">
                 You operate with state. The <SessionState> block, provided in the <Instance> data, is your working memory. You must validate its structure against this schema. If the state is malformed, trigger "StateValidationFailed".
@@ -246,10 +249,8 @@
         <Document id="PROJECT_ROADMAP" version="1.1" src="PROJECT_ROADMAP.md" description="Outlines project phases and priorities."/>
     </KnowledgeBase> 
     <SessionState>    
-        <last_outcome status="SUCCESS">
-            <summary>Resolved system-wide startup failures by correcting Redis misconfiguration and refactoring services to use dependency injection.</summary>
-            <system_status>STABLE</system_status>
-            <data_pipeline_status>HEALTHY</data_pipeline_status>
+        <last_outcome status="[SUCCESS|FAILURE|STALLED]" required="true">
+            <summary type="string" required="true" description="A summary of the last session's outcome."/>
         </last_outcome>
     </SessionState>
 
