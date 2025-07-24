@@ -90,9 +90,7 @@
                     </Description>
                     <ActionTemplate>                        
                         <ProposedRefactoring source_id="[original_id]">
-                            ```[language]
                             <!-- The complete, refactored file content goes here. -->
-                            ```
                         </ProposedRefactoring>
                     </ActionTemplate>
                 </Directive_RefactoringProtocol>
