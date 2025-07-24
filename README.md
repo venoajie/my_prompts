@@ -1,14 +1,9 @@
 
----
-
-### **Artifact 1: `README.md`**
-
-This file should be placed in the root of your `my-prompt-library` repository. It is the primary entry point for anyone seeking to understand and use your library.
-
+#### **File to Update: `README.md` (Root Directory)**
 ```markdown
 # The Prompt Engineering Library (PEL)
 
-This repository is a systematic, version-controlled library for managing and deploying high-quality AI prompts. It treats prompts as production source code, subject to the same engineering rigor, including versioning, peer review, and automated validation.
+This repository is a systematic, version-controlled library for managing and deploying high-quality AI prompts. It treats prompts as production source code, subject to the same engineering rigor, including versioning, peer review, and automated composition.
 
 **Core Philosophy:** A prompt is not a command; it is the blueprint for an agent. This library provides the tools and architecture to build a powerful system of specialized AI agents.
 
@@ -16,77 +11,78 @@ This repository is a systematic, version-controlled library for managing and dep
 
 ## Core Architecture
 
-This library is built on a strict, three-tier architecture designed for maximum reusability, clarity, and scalability.
+This library is built on a strict architecture designed for maximum reusability, clarity, and scalability.
 
-1.  **The System Core:** A single, global engine that provides the foundational rules, protocols, and base personas for all tasks. It is domain-agnostic and ensures a consistent standard of quality across the entire library.
-
-2.  **Domains:** A high-level grouping for a specific theme or project (e.g., `coding_trader_app`, `language_learning`). Each domain is a self-contained workspace with its own specialized personas, tasks, and knowledge base.
-
-3.  **Instances:** A specific, disposable task to be performed by an agent. An instance prompt activates a persona, provides it with knowledge, and gives it a clear mandate.
+1.  **The Engine:** A versioned set of core system kernels. A kernel provides the foundational rules, execution protocols, and error boundaries for all tasks. It is domain-agnostic and ensures a consistent standard of quality.
+2.  **Domains:** A high-level grouping for a specific project (e.g., `coding_trader_app`). Each domain is a self-contained workspace with its own specialized personas, workflows, and knowledge base.
+3.  **Personas:** Reusable, versioned agent blueprints. Personas can inherit from base personas to create specialized agents without duplicating logic.
+4.  **Instances:** A specific, disposable task. An instance prompt activates a persona, provides it with knowledge via `<Inject>` tags, and gives it a clear mandate.
 
 ## Directory Structure
 
-The repository is organized to enforce this architecture:
-
 my-prompt-library/
-├── .github/              # CI/CD workflows (e.g., prompt validation)
-├── system/               # Contains the single, global System Core
-├── domains/              # Contains all specialized work areas
+├── .github/                # CI/CD workflows (e.g., prompt validation)
+├── engine/                 # Contains versioned System Kernels
+│   └── v1/
+│       └── system_kernel.xml
+├── domains/                # Contains all specialized work areas
 │   └── [domain_name]/
-│       ├── personas/       # Reusable, domain-specific persona definitions
-│       ├── instances/      # Disposable, task-specific instance requests
-│       └── knowledge_base/ # Source data (code, docs) for prompts
+│       ├── personas/         # Domain-specific persona definitions
+│       │   ├── base/
+│       │   ├── mixins/
+│       │   └── specialized/
+│       ├── instances/        # Disposable, task-specific instance requests
+│       ├── workflows/        # Multi-step chains of instances
+│       └── knowledge_base/   # Source data (code, docs) for prompts
 │
-├── scripts/              # Helper scripts, like the prompt assembler
-└── README.md             # This file
+├── scripts/                # Helper scripts, like the prompt assembler
+└── README.md               # This file
 
 ## How to Use This Library
 
-Executing a prompt is a two-step process: authoring the instance and assembling the final payload.
+### Step 1: Author an Instance File
 
-### Step 1: Author an Instance Prompt
+Navigate to the appropriate domain (e.g., `domains/coding_trader_app/`) and create a new instance file in the `instances/` directory (e.g., `generate-unit-tests.instance.md`). An instance file uses **YAML Frontmatter** to declare its domain and target persona.
 
-Navigate to the appropriate domain (e.g., `domains/coding_trader_app/`) and create a new instance file in the `instances/` directory.
+To include a file as context, reference it from the domain's `knowledge_base/` using `<Inject src="..."/>`.
 
-An instance prompt is a small file that defines the task. To include a large file (like source code) as context, you reference it from the domain's `knowledge_base/` directory using a `<Document>` tag.
+**Example: `generate-unit-tests.instance.md`**
+```markdown
+---
+domain: coding_trader_app
+persona_alias: ute-1
+---
 
-**Example: `instances/generate_unit_tests.prompt`**
-```xml
-<!-- PEL INSTANCE REQUEST: GENERATE UNIT TESTS -->
-<Instance>
-    <KnowledgeBase>
-        <!-- The assembler script will find this file in ../knowledge_base/ -->
-        <Document id="AGENT_SOURCE" src="reconciliation_agent.py" />
-    </KnowledgeBase>
-    <Runtime>
-        <ActivatePersona alias="UTE-1"/>
-        <Mandate>Generate unit tests for the ReconciliationAgent.</Mandate>
-    </Runtime>
-</Instance>
+<Mandate>
+Generate comprehensive unit tests for the `ReconciliationAgent` class found in the provided source code.
+</Mandate>
+
+<Inject src="src/services/executor/deribit/reconciliation_agent.py" />
 ```
 
 ### Step 2: Assemble and Execute the Prompt
 
-Use the `assemble_prompt.py` script to build the full prompt, ready for the LLM. The script reads the System Core, finds your instance prompt, injects the content from the `knowledge_base`, and prints the final, complete prompt to your terminal.
+Use the `assemble_prompt_v2.py` script to build the full prompt. The script reads the frontmatter, finds the correct persona and engine, handles inheritance, injects knowledge base content, and prints the final, complete prompt.
 
 ```bash
 # This command assembles the prompt and copies it to your clipboard
-python scripts/assemble_prompt.py domains/coding_trader_app/instances/generate_unit_tests.prompt | pbcopy
+python scripts/assemble_prompt_v2.py domains/coding_trader_app/instances/generate-unit-tests.instance.md | pbcopy
 ```
 
-You can now paste the fully assembled prompt into your preferred AI interface (e.g., AI Studio, an API client).
+You can now paste the fully assembled prompt into your preferred AI interface.
 
 ---
 
 ## How to Contribute
 
-All changes to this library must be made via a Pull Request (PR).
+All changes to this library must be made via a Pull Request (PR) against the `main` branch.
 
-1.  **Branching:** Create a new feature branch from `develop` (e.g., `feature/add-new-persona`).
-2.  **Make Changes:** Add or modify personas, instances, or the core system.
-3.  **Create a Pull Request:** When your work is complete, open a PR against the `develop` branch.
-4.  **Provide Validation Evidence:** The PR description is **required** to contain proof that your new or modified prompt works as expected. This includes:
-    *   The full, assembled prompt you tested.
+1.  **Branching:** Create a new feature branch (e.g., `feature/add-csa-persona`).
+2.  **Make Changes:** Add or modify personas, workflows, or the engine. Ensure all new artifacts have correct YAML frontmatter.
+3.  **Create a Pull Request:** Open a PR against the `main` branch.
+4.  **Provide Validation Evidence:** The PR description is **required** to contain proof that your changes work as expected. This includes:
+    *   The path to the instance file used for testing.
     *   The full output generated by the LLM.
-5.  **Peer Review:** At least one other collaborator must review and approve the PR before it can be merged.
+    *   A brief analysis of the result.
+5.  **Peer Review:** At least one other collaborator must review and approve the PR.
 ```
