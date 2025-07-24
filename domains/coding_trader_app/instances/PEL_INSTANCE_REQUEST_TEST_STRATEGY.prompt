@@ -1,0 +1,25 @@
+<!-- PEL INSTANCE REQUEST: GENERATE PRIORITIZED UNIT TEST STRATEGY -->
+<!-- SYSTEM CORE: PEL_SYSTEM_CORE_V1.0.prompt -->
+<Instance>
+    <KnowledgeBase>
+        <!-- QSA-1 needs a high-level view of the system and its files. -->
+        <Document id="ARCHITECTURE_BLUEPRINT" src="PROJECT_BLUEPRINT_V2.5.md" description="The primary architectural blueprint.">
+        ```markdown
+        <!-- Full text of PROJECT_BLUEPRINT_V2.5.md goes here -->
+        ```
+        </Document>
+        
+        <Document id="DIRECTORY_STRUCTURE" src="TRADING_APP_DIRECTORY_STRUCTURE" description="The complete directory structure of the application.">
+        ```
+        <!-- The full output of the 'tree' command goes here -->
+        ```
+        </Document>
+    </KnowledgeBase> 
+    <Runtime>
+        <ActivatePersona alias="QSA-1"/>
+        <Mandate>
+            My application is in the final stages of development but has no unit tests. Analyze the provided system architecture and directory structure.
+            Produce a gradual, prioritized, multi-phase plan for adding unit tests. Start with the most critical components first to have the greatest immediate impact on code quality and risk reduction.
+        </Mandate>
+    </Runtime>
+</Instance>

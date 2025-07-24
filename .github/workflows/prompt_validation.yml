@@ -1,0 +1,21 @@
+name: Prompt Validation
+
+on: [pull_request]
+
+jobs:
+  validate-xml:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install xmllint
+      run: sudo apt-get update && sudo apt-get install -y libxml2-utils
+
+    - name: Validate Core Prompt XML
+      run: xmllint --noout system/PEL_SYSTEM_CORE_V1.0.prompt
+
+    - name: Validate Instance Prompts XML
+      # This finds all .prompt files in instances/ and validates them
+      run: |
+        find instances -type f -name "*.prompt" -print0 | xargs -0 -I {} xmllint --noout {}
