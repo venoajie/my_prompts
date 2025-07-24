@@ -5,8 +5,6 @@ This repository is a systematic, version-controlled library for managing and dep
 
 **Core Philosophy:** A prompt is not a command; it is the blueprint for an agent. This library provides the tools and architecture to build a powerful system of specialized AI agents.
 
----
-
 ## Core Architecture
 
 This library is built on a strict architecture designed for maximum reusability, clarity, and scalability.
@@ -16,8 +14,10 @@ This library is built on a strict architecture designed for maximum reusability,
 3.  **Personas:** Reusable, versioned agent blueprints. Personas can inherit from base personas to create specialized agents without duplicating logic.
 4.  **Instances:** A specific, disposable task. An instance prompt activates a persona, provides it with knowledge via `<Inject>` tags, and gives it a clear mandate.
 
-## Directory Structure
 ---
+
+## Directory Structure
+
 my-prompt-library/
 ├── .github/                # CI/CD workflows (e.g., prompt validation)
 ├── engine/                 # Contains versioned System Kernels
@@ -35,6 +35,7 @@ my-prompt-library/
 │
 ├── scripts/                # Helper scripts, like the prompt assembler
 └── README.md               # This file
+
 ---
 
 ## How to Use This Library
