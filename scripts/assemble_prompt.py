@@ -1,12 +1,5 @@
-
----
-
-### **Artifact 2: `scripts/assemble_prompt.py`**
-
-This Python script is the operational heart of your library. It requires no external libraries beyond the standard Python installation.
-
-```python
 #!/usr/bin/env python3
+
 import argparse
 import sys
 from pathlib import Path
