@@ -17,7 +17,7 @@ This library is built on a strict architecture designed for maximum reusability,
 4.  **Instances:** A specific, disposable task. An instance prompt activates a persona, provides it with knowledge via `<Inject>` tags, and gives it a clear mandate.
 
 ## Directory Structure
-
+---
 my-prompt-library/
 ├── .github/                # CI/CD workflows (e.g., prompt validation)
 ├── engine/                 # Contains versioned System Kernels
@@ -35,6 +35,7 @@ my-prompt-library/
 │
 ├── scripts/                # Helper scripts, like the prompt assembler
 └── README.md               # This file
+---
 
 ## How to Use This Library
 
