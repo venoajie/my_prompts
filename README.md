@@ -1,6 +1,4 @@
-
-#### **File to Update: `README.md` (Root Directory)**
-```markdown
+---
 # The Prompt Engineering Library (PEL)
 
 This repository is a systematic, version-controlled library for managing and deploying high-quality AI prompts. It treats prompts as production source code, subject to the same engineering rigor, including versioning, peer review, and automated composition.
