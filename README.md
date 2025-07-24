@@ -28,7 +28,6 @@ This library is built on a strict, three-tier architecture designed for maximum 
 
 The repository is organized to enforce this architecture:
 
-```
 my-prompt-library/
 ├── .github/              # CI/CD workflows (e.g., prompt validation)
 ├── system/               # Contains the single, global System Core
@@ -40,7 +39,6 @@ my-prompt-library/
 │
 ├── scripts/              # Helper scripts, like the prompt assembler
 └── README.md             # This file
-```
 
 ## How to Use This Library
 
