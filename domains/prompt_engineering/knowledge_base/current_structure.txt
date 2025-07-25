@@ -1,0 +1,83 @@
+.
+├── domains
+│   ├── coding_trader_app
+│   │   ├── instances
+│   │   │   ├── 2024-05-23_validate-system-logic-tp01
+│   │   │   │   ├── 00_mandate.md
+│   │   │   │   ├── 01_request.xml
+│   │   │   │   ├── 02_response.md
+│   │   │   │   └── 03_synthesis.json
+│   │   │   ├── DESCRIPTING_FILE.md
+│   │   │   ├── END_OF_SESSION_SYNTHESIS
+│   │   │   ├── generate_deployment_plan.prompt
+│   │   │   ├── GENERATE_SESSION_HANDOFF
+│   │   │   ├── GENERATE_SESSION_HANDOFF-v2.md
+│   │   │   ├── oci
+│   │   │   ├── PEL_INSTANCE_REQUEST_001.md
+│   │   │   ├── PEL_INSTANCE_REQUEST_deployment.md
+│   │   │   ├── PEL_INSTANCE_REQUEST_TEST_STRATEGY.prompt
+│   │   │   ├── PEL_INSTANCE_REQUEST_UNIT_TEST_RECONCILIATION.prompt
+│   │   │   ├── test
+│   │   │   └── TESTING_APPLICATION_DRAFTS.md
+│   │   ├── personas
+│   │   │   ├── base
+│   │   │   │   ├── bcaa-1.persona.md
+│   │   │   │   └── btaa-1.persona.md
+│   │   │   ├── coding
+│   │   │   │   ├── persona_assistant_Metis
+│   │   │   │   ├── persona_BASE.xml
+│   │   │   │   ├── persona_cd-1_diagnostician_v2.0.md
+│   │   │   │   ├── persona_cd-2_diagnostician_v2.0.md
+│   │   │   │   ├── persona_cd-2_diagnostician_v3.0.md
+│   │   │   │   ├── persona_code_forge
+│   │   │   │   ├── persona coding.md
+│   │   │   │   ├── persona_refresh.md
+│   │   │   │   ├── persona_se-1_systems_evolver.md
+│   │   │   │   └── persona_SE-1_systems_evolver.md
+│   │   │   ├── mixins
+│   │   │   │   └── codegen-standards-1.mixin.md
+│   │   │   └── specialized
+│   │   │       ├── ada-1.persona.md
+│   │   │       ├── adr-1.persona.md
+│   │   │       ├── bpr-1.persona.md
+│   │   │       ├── csa-1.persona.md
+│   │   │       ├── dpa-1.persona.md
+│   │   │       ├── ocia-1.persona.md
+│   │   │       ├── pba-1.persona.md
+│   │   │       ├── qsa-1.persona.md
+│   │   │       ├── sia-1.persona.md
+│   │   │       ├── sva-1.persona.md
+│   │   │       └── ute-1.persona.md
+│   │   ├── readme.md
+│   │   ├── README.md
+│   │   └── workflows
+│   │       └── _template.workflow.md
+│   ├── language_learning
+│   │   └── personas
+│   │       └── persona_english_partner.md
+│   └── prompt_engineering
+│       ├── instances
+│       │   └── refactor-my-pel.instance.md
+│       ├── knowledge_base
+│       │   └── current_structure.txt
+│       └── personas
+│           └── prompting
+│               ├── persona_gemini_analyst.md
+│               ├── persona_pel-architect_v1.0.md
+│               ├── persona_pel-architect_v2.0.md
+│               └── pra-1.persona.md
+├── ideas
+│   ├── persona_CENDANA_EKSEKUTOR (CE-1).md
+│   ├── persona_original_improve_persona
+│   ├── persona_original_reduce_hallucinations.md
+│   ├── persona_specialist.md
+│   └── _template_persona.md
+├── README.md
+├── scripts
+│   └── assemble_prompt.py
+├── system
+│   └── PEL_SYSTEM_CORE_V1.0.md
+└── workflows
+    └── _template_workflow.md
+
+21 directories, 59 files
