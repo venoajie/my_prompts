@@ -19,6 +19,7 @@
 │   │   │   ├── PEL_INSTANCE_REQUEST_TEST_STRATEGY.prompt
 │   │   │   ├── PEL_INSTANCE_REQUEST_UNIT_TEST_RECONCILIATION.prompt
 │   │   │   ├── qtsa-1.mandate.md
+│   │   │   ├── run-quarterly-audit.instance.md
 │   │   │   ├── test
 │   │   │   └── TESTING_APPLICATION_DRAFTS.md
 │   │   ├── personas
@@ -41,15 +42,20 @@
 │   │   │   └── specialized
 │   │   │       ├── ada-1.persona.md
 │   │   │       ├── adr-1.persona.md
+│   │   │       ├── alignment-checker.persona.md
 │   │   │       ├── bpr-1.persona.md
 │   │   │       ├── csa-1.persona.md
+│   │   │       ├── dca-1.persona.md
 │   │   │       ├── dpa-1.persona.md
+│   │   │       ├── kb-metadata-generator.persona.md
 │   │   │       ├── ocia-1.persona.md
 │   │   │       ├── pba-1.persona.md
+│   │   │       ├── pela-1.persona.md
 │   │   │       ├── qsa-1.persona.md
 │   │   │       ├── qtsa-1.persona.md
 │   │   │       ├── sia-1.persona.md
 │   │   │       ├── sva-1.persona.md
+│   │   │       ├── tae-1.persona.md
 │   │   │       └── ute-1.persona.md
 │   │   ├── readme.md
 │   │   ├── README.md
@@ -75,12 +81,14 @@
 │   ├── persona_original_reduce_hallucinations.md
 │   ├── persona_specialist.md
 │   └── _template_persona.md
+├── PEL_BLUEPRINT.md
 ├── README.md
 ├── scripts
-│   └── assemble_prompt.py
+│   ├── assemble_prompt.py
+│   └── kb_updater.py
 ├── system
 │   └── PEL_SYSTEM_CORE_V1.0.md
 └── workflows
     └── _template_workflow.md
 
-21 directories, 61 files
+21 directories, 69 files
