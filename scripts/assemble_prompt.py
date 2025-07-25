@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 # assemble_prompt_v2.1.py
 
+
 import argparse
 import sys
 from pathlib import Path
-from typing import Tuple 
+from typing import Tuple, List, Dict
+import json
+import re
 
 import yaml
 from bs4 import BeautifulSoup
@@ -15,6 +18,8 @@ DOMAINS_DIR_NAME = "domains"
 PERSONAS_DIR_NAME = "personas"
 KB_DIR_NAME = "knowledge_base"
 INSTANCES_DIR_NAME = "instances"
+ALIGNMENT_CHECKER_ALIAS = "alignment-checker"
+PROMPT_ENGINEERING_DOMAIN = "prompt_engineering"
 
 # --- Core Logic ---
 
@@ -57,6 +62,83 @@ def find_artifact(repo_root: Path, domain: str, artifact_type: str, alias: str) 
         print(f"Warning: Found multiple artifacts for alias '{alias}'; using first one: {matches[0]}", file=sys.stderr)
     
     return matches[0]
+
+def get_all_persona_metadata(repo_root: Path, domain: str) -> List[Dict[str, str]]:
+    """
+    Scans a domain's persona directory and extracts key metadata for the alignment check.
+    """
+    personas_path = repo_root / DOMAINS_DIR_NAME / domain / PERSONAS_DIR_NAME
+    if not personas_path.is_dir():
+        return []
+
+    metadata_list = []
+    # Find all files ending in .persona.md, looking recursively in subdirectories
+    for persona_file in personas_path.glob('**/*.persona.md'):
+        metadata, content = load_artifact_with_frontmatter(persona_file)
+        alias = metadata.get("alias")
+        
+        # Extract the primary directive directly from the content for robustness
+        directive_match = re.search(r'<primary_directive>(.*?)</primary_directive>', content, re.DOTALL)
+        primary_directive = directive_match.group(1).strip() if directive_match else ""
+
+        if alias and primary_directive:
+            metadata_list.append({
+                "alias": alias,
+                "primary_directive": primary_directive
+            })
+    return metadata_list
+
+
+def perform_alignment_check(mandate_content: str, all_personas_metadata: List[Dict[str, str]]) -> Dict:
+    """
+    Constructs a prompt for the alignment checker, simulates an LLM call, and returns the result.
+    """
+    # Load the ALIGNMENT-CHECKER persona's definition
+    # Note: In a real system, you might not need to find the repo root again, but this is robust.
+    # This assumes the alignment-checker persona is in the 'prompt_engineering' domain.
+    try:
+        repo_root = find_repo_root(Path.cwd())
+        checker_persona_path = find_artifact(repo_root, PROMPT_ENGINEERING_DOMAIN, PERSONAS_DIR_NAME, ALIGNMENT_CHECKER_ALIAS)
+        _, checker_prompt = load_artifact_with_frontmatter(checker_persona_path)
+    except FileNotFoundError:
+        print("Warning: ALIGNMENT-CHECKER persona not found. Skipping alignment check.", file=sys.stderr)
+        return {"suggested_persona_alias": None}
+
+    # Construct the prompt payload for the checker
+    persona_list_json = json.dumps(all_personas_metadata, indent=2)
+    alignment_prompt = f"""
+{checker_prompt}
+
+<PersonaList>
+{persona_list_json}
+</PersonaList>
+
+<Mandate>
+{mandate_content}
+</Mandate>
+"""
+    # --- !!! LLM API INTEGRATION POINT !!! ---
+    # In a real application, you would replace the following block
+    # with a call to your LLM API (e.g., OpenAI, Anthropic, Google).
+    #
+    # Example:
+    # client = OpenAI()
+    # response = client.chat.completions.create(
+    #     model="gpt-4-turbo",
+    #     messages=[{"role": "user", "content": alignment_prompt}],
+    #     response_format={"type": "json_object"}
+    # )
+    # response_json_str = response.choices[0].message.content
+    
+    # For demonstration, we will print the prompt and return a simulated response.
+    print("\n--- [INFO] SIMULATED ALIGNMENT CHECK PROMPT ---", file=sys.stderr)
+    print(alignment_prompt, file=sys.stderr)
+    print("--- [INFO] END OF SIMULATED PROMPT ---\n", file=sys.stderr)
+    
+    # Simulate a response. In a real scenario, this comes from the LLM.
+    response_json_str = '{"suggested_persona_alias": "QSA-1"}' # Example hardcoded response
+    
+    return json.loads(response_json_str)
 
 def assemble_persona_content(repo_root: Path, domain: str, persona_alias: str) -> str:
     """Recursively assembles a persona's content by walking the 'inherits_from' chain."""
@@ -107,21 +189,15 @@ def inject_knowledge_base(instance_content: str, repo_root: Path, domain: str) -
     
     return str(soup)
 
-def assemble_full_prompt(instance_path: Path) -> str:
-    """Main assembly function."""
+def assemble_full_prompt(instance_path: Path, chosen_alias: str) -> str:
+    """Main assembly function, now takes the chosen_alias as an argument."""
     repo_root = find_repo_root(instance_path)
     instance_meta, instance_mandate = load_artifact_with_frontmatter(instance_path)
-    
-    required_fields = ["domain", "persona_alias"]
-    if not all(field in instance_meta for field in required_fields):
-        raise ValueError(f"Instance file '{instance_path}' frontmatter is missing one of {required_fields}")
-
     domain = instance_meta["domain"]
-    persona_alias = instance_meta["persona_alias"]
     
-    full_persona_content = assemble_persona_content(repo_root, domain, persona_alias)
+    full_persona_content = assemble_persona_content(repo_root, domain, chosen_alias)
     
-    persona_path = find_artifact(repo_root, domain, PERSONAS_DIR_NAME, persona_alias)
+    persona_path = find_artifact(repo_root, domain, PERSONAS_DIR_NAME, chosen_alias)
     persona_meta, _ = load_artifact_with_frontmatter(persona_path)
     engine_version = persona_meta.get("engine_version", "v1")
     
@@ -133,7 +209,7 @@ def assemble_full_prompt(instance_path: Path) -> str:
     final_instance_block = f"""
 <Instance>
     <Runtime>
-        <ActivatePersona alias="{persona_alias}"/>
+        <ActivatePersona alias="{chosen_alias}"/>
         <Mandate>
             {injected_mandate}
         </Mandate>
@@ -156,8 +232,40 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     try:
-        final_prompt = assemble_full_prompt(args.instance_file)
+        # --- STAGE 1: ALIGNMENT CHECK ---
+        
+        # FIX: Define repo_root at the beginning of the block
+        repo_root = find_repo_root(args.instance_file)
+
+        instance_meta, instance_mandate = load_artifact_with_frontmatter(args.instance_file)
+        original_alias = instance_meta["persona_alias"]
+        domain = instance_meta["domain"]
+
+        all_personas_metadata = get_all_persona_metadata(repo_root, domain)
+        
+        # Only perform check if there are personas to check against
+        suggested_alias = original_alias
+        if all_personas_metadata:
+            alignment_result = perform_alignment_check(instance_mandate, all_personas_metadata)
+            # Handle case where checker might fail or return no suggestion
+            suggested_alias = alignment_result.get("suggested_persona_alias", original_alias)
+        
+        chosen_alias = original_alias
+        if suggested_alias and suggested_alias.lower() != original_alias.lower():
+            print(f"[ALIGNMENT_WARNING] The requested persona '{original_alias}' may not be the best fit.", file=sys.stderr)
+            print(f"The persona '{suggested_alias}' appears to be a much stronger match.", file=sys.stderr)
+            
+            user_choice = input("Proceed with original, or switch? (original/switch): ").lower().strip()
+            if user_choice == "switch":
+                chosen_alias = suggested_alias
+                print(f"Switching to persona '{chosen_alias}'.", file=sys.stderr)
+
+        # --- STAGE 2: FINAL ASSEMBLY ---
+        
+        # FIX: The assemble_full_prompt function needs the instance path AND the chosen alias
+        final_prompt = assemble_full_prompt(args.instance_file, chosen_alias)
         print(final_prompt)
+        
     except (FileNotFoundError, ValueError) as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
