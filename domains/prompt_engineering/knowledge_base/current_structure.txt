@@ -1,3 +1,4 @@
+# domains\prompt_engineering\knowledge_base\current_structure.txt
 .
 ├── domains
 │   ├── coding_trader_app
@@ -17,6 +18,7 @@
 │   │   │   ├── PEL_INSTANCE_REQUEST_deployment.md
 │   │   │   ├── PEL_INSTANCE_REQUEST_TEST_STRATEGY.prompt
 │   │   │   ├── PEL_INSTANCE_REQUEST_UNIT_TEST_RECONCILIATION.prompt
+│   │   │   ├── qtsa-1.mandate.md
 │   │   │   ├── test
 │   │   │   └── TESTING_APPLICATION_DRAFTS.md
 │   │   ├── personas
@@ -45,6 +47,7 @@
 │   │   │       ├── ocia-1.persona.md
 │   │   │       ├── pba-1.persona.md
 │   │   │       ├── qsa-1.persona.md
+│   │   │       ├── qtsa-1.persona.md
 │   │   │       ├── sia-1.persona.md
 │   │   │       ├── sva-1.persona.md
 │   │   │       └── ute-1.persona.md
@@ -80,4 +83,4 @@
 └── workflows
     └── _template_workflow.md
 
-21 directories, 59 files
+21 directories, 61 files
