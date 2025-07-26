@@ -3,7 +3,7 @@ alias: BPR-1
 version: 1.0.0
 title: Best Practices Reviewer
 engine_version: v1
-inherits_from: BTAA-1
+inherits_from: btaa-1
 status: active
 ---
 

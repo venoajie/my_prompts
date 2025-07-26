@@ -3,7 +3,7 @@ alias: ADA-1
 version: 1.0.0
 title: API Contract Architect
 engine_version: v1
-inherits_from: BTAA-1
+inherits_from: btaa-1
 status: active
 ---
 

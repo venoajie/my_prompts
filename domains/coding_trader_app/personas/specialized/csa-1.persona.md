@@ -3,7 +3,7 @@ alias: CSA-1
 version: 1.1.0
 title: Collaborative Systems Architect
 engine_version: v1
-inherits_from: BCAA-1
+inherits_from: bcaa-1
 status: active
 ---
 

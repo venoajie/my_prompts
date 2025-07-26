@@ -3,7 +3,7 @@ alias: DCA-1
 version: 1.0.0
 title: Documentation & Content Architect
 engine_version: v1
-inherits_from: BCAA-1
+inherits_from: bcaa-1
 status: active
 ---
 

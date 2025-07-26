@@ -1,5 +1,5 @@
 ---
-alias: ALIGNMENT-CHECKER
+alias: alignment-checker
 version: 1.0.0
 title: Mandate Alignment Checker
 engine_version: v1
