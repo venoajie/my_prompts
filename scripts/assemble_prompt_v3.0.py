@@ -145,12 +145,26 @@ def assemble_persona_content(repo_root: Path, domain: str, persona_alias: str) -
     persona_path = find_artifact(repo_root, domain, PERSONAS_DIR_NAME, persona_alias)
     metadata, content = load_artifact_with_frontmatter(persona_path)
 
-    parent_content = ""
+    # Create the XML block for the CURRENT persona
+    current_persona_xml = f"""
+<persona>
+    <meta>
+        <alias>{metadata.get('alias', '')}</alias>
+        <title>{metadata.get('title', '')}</title>
+        <version>{metadata.get('version', '')}</version>
+        <inherits_from>{metadata.get('inherits_from', '')}</inherits_from>
+    </meta>
+    {content}
+</persona>"""
+
+    parent_content_xml = ""
     if "inherits_from" in metadata and metadata["inherits_from"]:
         parent_alias = metadata["inherits_from"]
-        parent_content = assemble_persona_content(repo_root, domain, parent_alias)
+        # The recursive call now returns the fully formed XML for the parent(s)
+        parent_content_xml = assemble_persona_content(repo_root, domain, parent_alias)
 
-    return f"{parent_content}\n\n{content}"
+    # The final library is the parent's XML followed by the current persona's XML
+    return f"{parent_content_xml}\n{current_persona_xml}"
 
 def inject_knowledge_base(instance_content: str, repo_root: Path, domain: str) -> str:
     """Injects file content into the instance XML by resolving paths from the repo root."""
@@ -195,6 +209,16 @@ def assemble_full_prompt(instance_path: Path, chosen_alias: str) -> str:
     instance_meta, instance_mandate = load_artifact_with_frontmatter(instance_path)
     domain = instance_meta["domain"]
     
+    
+    # Extract only the <Mandate> block for processing to avoid parsing other tags like <h3>
+    mandate_match = re.search(r'<Mandate>(.*?)</Mandate>', instance_mandate, re.DOTALL)
+    if not mandate_match:
+        raise ValueError("Instance file is missing a <Mandate> block.")
+    
+    mandate_content_to_inject = mandate_match.group(0) # Get the full <Mandate>...</Mandate> block
+    
+    injected_mandate_block = inject_knowledge_base(mandate_content_to_inject, repo_root, domain)
+    
     full_persona_content = assemble_persona_content(repo_root, domain, chosen_alias)
     
     persona_path = find_artifact(repo_root, domain, PERSONAS_DIR_NAME, chosen_alias)
@@ -204,12 +228,11 @@ def assemble_full_prompt(instance_path: Path, chosen_alias: str) -> str:
     engine_path = repo_root / ENGINE_DIR_NAME / engine_version / "system_kernel.xml"
     engine_content = engine_path.read_text()
 
-    injected_mandate = inject_knowledge_base(instance_mandate, repo_root, domain)
     final_instance_block = f"""
 <Instance>
     <Runtime>
         <ActivatePersona alias="{chosen_alias}"/>
-        {injected_mandate}
+        {injected_mandate_block}
     </Runtime>
 </Instance>
 """
