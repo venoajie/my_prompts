@@ -12,7 +12,7 @@ import re
 import yaml
 from bs4 import BeautifulSoup
 
-# --- Constants ---
+# --- Constants --
 ENGINE_DIR_NAME = "engine"
 DOMAINS_DIR_NAME = "domains"
 PERSONAS_DIR_NAME = "personas"
