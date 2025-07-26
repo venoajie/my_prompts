@@ -205,17 +205,15 @@ def assemble_full_prompt(instance_path: Path, chosen_alias: str) -> str:
     engine_content = engine_path.read_text()
 
     injected_mandate = inject_knowledge_base(instance_mandate, repo_root, domain)
-    
     final_instance_block = f"""
 <Instance>
     <Runtime>
         <ActivatePersona alias="{chosen_alias}"/>
-        <Mandate>
-            {injected_mandate}
-        </Mandate>
+        {injected_mandate}
     </Runtime>
 </Instance>
 """
+   
     return f"{engine_content}\n\n<PersonaLibrary>\n{full_persona_content}\n</PersonaLibrary>\n{final_instance_block}"
 
 if __name__ == "__main__":
