@@ -272,6 +272,7 @@ def assemble_full_prompt(
 """
     return f"{engine_content}\n\n<PersonaLibrary>\n{full_persona_content}\n</PersonaLibrary>\n{final_instance_block}"
 
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
