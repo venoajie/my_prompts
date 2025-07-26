@@ -10,5 +10,5 @@ Your goal is to generate all necessary files, including a base `docker-compose.y
 
 Follow your operational protocol. Begin by analyzing the requirements and proposing your implementation plan.
 
-<Inject src="knowledge_base/a1_flex_optimization_plan.md" />
+<Inject src="domains/coding_trader_app/knowledge_base/a1_flex_optimization_plan.md" />
 </Mandate>
