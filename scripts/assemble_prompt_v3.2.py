@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# assemble_prompt_v3.1.py
+# assemble_prompt_v3.2.py
 
 
 import argparse
@@ -10,7 +10,7 @@ import json
 import re
 
 import yaml
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, CData
 
 # --- Constants --
 ENGINE_DIR_NAME = "engine"
@@ -221,20 +221,21 @@ def inject_knowledge_base(
              tag.string = "<!-- INJECTION ERROR: PATH TRAVERSAL BLOCKED -->"
              continue
 
+
         if doc_path.is_file():
             file_content = doc_path.read_text()
-            tag.string = f"<![CDATA[\n{file_content}\n]]>"
-        else:
-            # Fallback for non-code artifacts like ARCHITECTURE_BLUEPRINT.md
+            tag.clear()
+            tag.append(CData(f"\n{file_content}\n"))
+        elif kb_path.is_dir() and (kb_path / src_file).is_file():
             fallback_path = (kb_path / src_file).resolve()
-            if fallback_path.is_file():
-                 file_content = fallback_path.read_text()
-                 tag.string = f"<![CDATA[\n{file_content}\n]]>"
-            else:
-                print(f"Warning: File '{src_file}' not found at repo root or in KB. Tag will be empty.", file=sys.stderr)
-                tag.string = "<!-- INJECTION ERROR: SOURCE FILE NOT FOUND -->"
+            file_content = fallback_path.read_text()
+            tag.clear()
+            tag.append(CData(f"\n{file_content}\n"))
+        else:
+            print(f"Warning: File '{src_file}' not found at repo root or in KB. Tag will be empty.", file=sys.stderr)
+            tag.string = "<!-- INJECTION ERROR: SOURCE FILE NOT FOUND -->"
     
-    return str(soup)
+    return "".join(str(c) for c in soup.contents)
 
 def assemble_full_prompt(
     instance_path: Path, 
