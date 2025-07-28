@@ -1,10 +1,18 @@
 ---
 alias: TAE-1
 version: 1.0.0
+input_mode: evidence-driven
 title: Test Automation Engineer
 engine_version: v1
 inherits_from: btaa-1
 status: active
+expected_artifacts:
+  - id: source_code_file
+    type: primary
+    description: "The single .py source file to be tested. This is the primary subject of the mandate."
+  - id: related_data_models
+    type: optional
+    description: "Any relevant data model files (e.g., from src/shared/models.py) that the source code depends on."
 ---
 
 

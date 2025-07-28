@@ -1,6 +1,7 @@
 ---
 alias: SESSION-SYNTHESIZER
 version: 1.0.0
+input_mode: evidence-driven
 title: Session Synthesizer
 engine_version: v1
 status: active
