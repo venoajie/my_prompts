@@ -49,22 +49,24 @@ help:
 # =====================================================================
 .PHONY: generate-prompt
 generate-prompt:
-	@if [ -z "$(INSTANCE)" ]; then \
-		echo "ERROR: Please specify the instance file."; \
-		echo "Usage: make generate-prompt INSTANCE=domains/coding_trader_app/instances/your_task.instance.md"; \
-		exit 1; \
-	fi
-	@mkdir -p $(BUILD_DIR)
-	@INSTANCE_BASENAME=$$(basename $(INSTANCE) .instance.md); \
-	OUTPUT_FILE=$(BUILD_DIR)/$${INSTANCE_BASENAME}.prompt.xml; \
-	@echo "Generating prompt for [$(INSTANCE)] -> [$${OUTPUT_FILE}]"; \
-	$(PYTHON_EXEC) $(ASSEMBLER_SCRIPT) $(INSTANCE) > $${OUTPUT_FILE}
+	@# FIX: The @ is moved outside the chained command block for robustness.
+	@( \
+		if [ -z "$(INSTANCE)" ]; then \
+			echo "ERROR: Please specify the instance file."; \
+			echo "Usage: make generate-prompt INSTANCE=domains/coding_trader_app/instances/your_task.instance.md"; \
+			exit 1; \
+		fi; \
+		mkdir -p $(BUILD_DIR); \
+		INSTANCE_BASENAME=$$(basename $(INSTANCE) .instance.md); \
+		OUTPUT_FILE=$(BUILD_DIR)/$${INSTANCE_BASENAME}.prompt.xml; \
+		echo "Generating prompt for [$(INSTANCE)] -> [$${OUTPUT_FILE}]"; \
+		$(PYTHON_EXEC) $(ASSEMBLER_SCRIPT) $(INSTANCE) > $${OUTPUT_FILE}; \
+	)
 
 .PHONY: end-session
 end-session:
 	@if [ -z "$(LOG)" ]; then \
 		echo "ERROR: Please specify the session log file."; \
-		echo "Usage: make end-session LOG=path/to/session_log.md"; \
 		exit 1; \
 	fi
 	@echo "Synthesizing session log: $(LOG)"
@@ -82,7 +84,8 @@ end-session:
 	\
 	echo ""; \
 	echo "$(YELLOW)--------------------------- ACTION REQUIRED ---------------------------$(NC)"; \
-	echo "A synthesis prompt has been generated at: $(GREEN)$(SYNTH_PROMPT_FILE)$(NC)"; \
+	# FIX: Correctly expand the variable in the final echo statement.
+	echo "A synthesis prompt has been generated at: $(GREEN)$(BUILD_DIR)/synthesize-session-$(TIMESTAMP).prompt.xml$(NC)"; \
 	echo "1. Copy the content of this file and execute it with your LLM."; \
 	echo "2. Save the resulting JSON output to your knowledge_base (e.g., session_synthesis_latest.json)."; \
 	echo "$(YELLOW)-----------------------------------------------------------------------$(NC)"
