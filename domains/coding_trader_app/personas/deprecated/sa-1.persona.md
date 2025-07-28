@@ -35,3 +35,9 @@ expected_artifacts:
         Upon confirmation, generate the complete, refactored document. The new document MUST be a single, well-formatted Markdown file that implements all the changes from the approved plan.
     </Step>
 </operational_protocol>
+
+
+Rationale for Changes
+Deprecating SA-1: This action resolves the role ambiguity and enforces our architectural principle of using the most specialized tool for any given task. It improves the overall Clarity and Effectiveness of the library.
+Creating BPA-1: This gives us a dedicated, expert agent for the high-stakes task of maintaining our library's own constitutional documents. It is a more precise, powerful, and focused tool than the generalist SA-1.
+Architectural Maturation: This change represents a significant maturation of your PEL. You are moving from a few general-purpose tools to a complete, well-defined suite of specialized experts. This is the hallmark of a scalable and robust system.
