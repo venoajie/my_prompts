@@ -128,17 +128,3 @@ This is a periodic health check you should run to receive an actionable report o
 make generate-prompt INSTANCE=domains/prompt_engineering/instances/run-quarterly-audit.instance.md
 ```
 
-
-### **Rationale for Changes**
-
-1.  **Formalized Blueprint (`PEL_BLUEPRINT.md`):** By adding "Session Handoff & Synthesis" as a core workflow, we elevate it from a good idea to a **formal architectural pattern**. This ensures that any future development of the library's tooling will respect and support this process, which is critical for **Robustness** and long-term maintainability.
-2.  **Actionable User Guidance (`README.md`):** The new section in the `README` provides a clear, step-by-step guide for the user. This directly improves the library's **Effectiveness** by teaching users the most efficient and cost-effective way to manage their workflow. It prevents them from making the costly mistake of injecting raw session logs.
-
-### **Suggested Enhancements**
-
-The next logical step is to fully automate the handoff process as previously discussed.
-
-1.  **Create the `synthesize-session.instance.md` file:** This file will be a permanent, reusable tool in your library.
-2.  **Create the `Makefile` target:** Add the `end-session` target to your `Makefile` to automate the process of saving the log, running the synthesis, and saving the output.
-
-This will transform the three-step manual process described in the new `README` into a single, reliable command: `make end-session`.
