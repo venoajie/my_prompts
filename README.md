@@ -59,10 +59,6 @@ Before writing an instance file, you must determine which documents the persona 
 
 #### Step 1: Author an Instance File
 
-Following the protocol above, create a new instance file (e.g., `instances/generate-unit-tests.instance.md`). Use `<Inject src="..."/>` tags with paths relative to the repository root to provide all required evidence.
-
-#### Step 1: Author an Instance File
-
 Navigate to the appropriate domain and create a new instance file (e.g., `instances/generate-unit-tests.instance.md`). The file uses YAML frontmatter to declare its domain and target persona.
 
 To include a file as context, use the `<Inject>` tag with a path relative to the **repository root**. This allows you to reference your live, actively-edited source code directly, with no copying required.
@@ -97,10 +93,52 @@ This will create a file like build/generate-unit-tests.prompt.xml. You can now o
 #### Step 3: Execute the Prompt
 Copy the contents of the generated .xml file and paste it into your preferred LLM interface.
 
-### 3. Auditing the Library (Maintaining Health)
-<!-- ... This section is correct, but update the script version for consistency ... -->
-Generated bash
+
+### 3. Managing and Resuming Sessions (The Handoff Workflow)
+
+To work on a complex task over multiple sessions without losing context or incurring high token costs, use the session synthesis workflow.
+
+#### Step 1: At the end of your session
+
+Save the entire conversation log to a file (e.g., `domains/prompt_engineering/knowledge_base/session_log_01.md`).
+
+#### Step 2: Synthesize the log
+
+Run an instance prompt that activates the `SESSION-SYNTHESIZER` persona. This will read the large log file and produce a small, structured JSON summary.
+
+```bash
+# Create an instance file for the synthesizer, then run this command
+make generate-prompt INSTANCE=domains/prompt_engineering/instances/synthesize-session.instance.md
+```
+
+This will create a file like build/synthesize-session.prompt.xml. Execute this prompt and save the resulting JSON to a file (e.g., knowledge_base/session_synthesis_01.json).
+
+#### Step 3: To resume your session
+Use an instance prompt that activates the appropriate persona (e.g., PELA-1) and injects the small, structured session_synthesis_01.json file, not the original large log. This provides the agent with a dense, high-signal summary of all previous decisions and outcomes.
+
+### 4. Auditing the Library (Maintaining Health)
+
+To prevent architectural decay, the library includes a built-in audit workflow. This process uses the PEL Auditor (PELA-1) persona to perform a gap analysis between the PEL_BLUEPRINT.md and the actual state of the repository.
+
+This is a periodic health check you should run to receive an actionable report on how to improve your library's structure, scripts, and documentation.
+
+
+```bash
 # Run the built-in audit to get a "State of the Library" report
 make generate-prompt INSTANCE=domains/prompt_engineering/instances/run-quarterly-audit.instance.md
-Use code with caution.
-Bash
+```
+
+
+### **Rationale for Changes**
+
+1.  **Formalized Blueprint (`PEL_BLUEPRINT.md`):** By adding "Session Handoff & Synthesis" as a core workflow, we elevate it from a good idea to a **formal architectural pattern**. This ensures that any future development of the library's tooling will respect and support this process, which is critical for **Robustness** and long-term maintainability.
+2.  **Actionable User Guidance (`README.md`):** The new section in the `README` provides a clear, step-by-step guide for the user. This directly improves the library's **Effectiveness** by teaching users the most efficient and cost-effective way to manage their workflow. It prevents them from making the costly mistake of injecting raw session logs.
+
+### **Suggested Enhancements**
+
+The next logical step is to fully automate the handoff process as previously discussed.
+
+1.  **Create the `synthesize-session.instance.md` file:** This file will be a permanent, reusable tool in your library.
+2.  **Create the `Makefile` target:** Add the `end-session` target to your `Makefile` to automate the process of saving the log, running the synthesis, and saving the output.
+
+This will transform the three-step manual process described in the new `README` into a single, reliable command: `make end-session`.
