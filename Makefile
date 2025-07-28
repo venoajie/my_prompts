@@ -68,8 +68,6 @@ end-session:
 		exit 1; \
 	fi
 	@echo "Synthesizing session log: $(LOG)"
-	@# FIX: Ensure the build directory exists before trying to write to it.
-	@mkdir -p $(BUILD_DIR)
 	@# Step 1: Create a temporary, timestamped instance file for the synthesizer
 	@SYNTH_INSTANCE_FILE=$(BUILD_DIR)/synthesize-session-$(TIMESTAMP).instance.md; \
 	echo "---" > $${SYNTH_INSTANCE_FILE}; \
