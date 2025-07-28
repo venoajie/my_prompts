@@ -67,8 +67,8 @@ end-session:
 		exit 1; \
 	fi
 	@echo "Synthesizing session log: $(LOG)"
-	@# Step 1: Create an instance file for the synthesizer on the fly
-	@SYNTH_INSTANCE_FILE=$(BUILD_DIR)/synthesize.instance.md; \
+	@# Step 1: Create a temporary instance file for the synthesizer, injecting the log path
+	@SYNTH_INSTANCE_FILE=$(BUILD_DIR)/synthesize-session.instance.md; \
 	echo "---" > $${SYNTH_INSTANCE_FILE}; \
 	echo "domain: prompt_engineering" >> $${SYNTH_INSTANCE_FILE}; \
 	echo "persona_alias: session-synthesizer" >> $${SYNTH_INSTANCE_FILE}; \
@@ -76,16 +76,15 @@ end-session:
 	echo "<Mandate><Inject src=\"$(LOG)\" /></Mandate>" >> $${SYNTH_INSTANCE_FILE}; \
 	\
 	@# Step 2: Generate the prompt FOR the synthesizer
-	@SYNTH_PROMPT_FILE=$(BUILD_DIR)/synthesize.prompt.xml; \
+	@SYNTH_PROMPT_FILE=$(BUILD_DIR)/synthesize-session.prompt.xml; \
 	$(MAKE) generate-prompt INSTANCE=$${SYNTH_INSTANCE_FILE}; \
 	\
 	@echo ""
 	@echo "$(YELLOW)--------------------------- ACTION REQUIRED ---------------------------$(NC)"
 	@echo "A synthesis prompt has been generated at: $(GREEN)$(SYNTH_PROMPT_FILE)$(NC)"
 	@echo "1. Copy the content of this file and execute it with your LLM."
-	@echo "2. Save the resulting JSON output to your knowledge_base."
-	@echo "$(YELLOW)-----------------------------------------------------------------------$(NC)"
-
+	@echo "2. Save the resulting JSON output to your knowledge_base (e.g., session_synthesis_latest.json)."
+	@echo "$(YELLOW)----
 
 .PHONY: generate-manifest-prompt
 generate-manifest-prompt:
@@ -95,7 +94,7 @@ generate-manifest-prompt:
 	fi
 	@echo "Generating prompt to create a Jules Manifest..."
 	@$(MAKE) generate-prompt INSTANCE=$(INSTANCE)
-	
+
 
 .PHONY: debug-failed-run
 debug-failed-run:

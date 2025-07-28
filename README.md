@@ -9,36 +9,57 @@ This repository is a systematic, version-controlled library for managing and dep
 
 ## Core Architecture
 
-This library is built on a strict, principled architecture designed for maximum reusability, clarity, and scalability.
+This library is built on a strict, principled architecture designed for maximum reusability, clarity, and scalability. It is composed of three primary layers:
 
-1.  **The Architectural Blueprint:** A single, version-controlled `PEL_BLUEPRINT.md` file at the root of the repository. It is the constitution for the library, defining the intended state, core principles, and architectural rationale.
-2.  **The Engine:** A versioned set of core `system_kernel.xml` files. A kernel provides the foundational rules, execution protocols, and error boundaries for all tasks.
-3.  **Domains:** Self-contained workspaces for specific projects (e.g., `coding_trader_app`). Each domain has its own specialized personas, workflows, and non-code knowledge base artifacts.
-4.  **Personas:** Reusable, versioned agent blueprints defined in individual files. Personas can inherit from base personas to create specialized agents without duplicating logic.
-5.  **Instances:** A specific, disposable task definition. An instance prompt activates a persona and provides it with context by injecting files directly from the project's source tree.
+#### 1. Declarative Blueprints (The "What")
+
+These are the static, human- and machine-readable artifacts that define the system's knowledge and capabilities.
+
+-   **The Architectural Blueprint:** A single, version-controlled `PEL_BLUEPRINT.md` file. It is the constitution for the library, defining the intended state, core principles, and architectural rationale.
+-   **The Engine:** A versioned set of core `system_kernel.xml` files that provide the foundational rules and execution protocols for all agents.
+-   **Domains:** Self-contained workspaces for specific projects, each with its own curated, non-code `knowledge_base`.
+-   **Personas:** Reusable, versioned agent blueprints defined in individual files, capable of inheritance to create specialized agents.
+
+#### 2. Operational Tooling (The "How")
+
+This is the automation layer that brings the declarative blueprints to life.
+
+-   **The Assembly Script:** The `assemble_prompt.py` script is the core engine that implements the two-stage assembly process, including the AI-powered alignment check and the injection of all necessary context.
+-   **The Automation Interface:** The `Makefile` is the primary user interface for all core workflows. It provides simple, standardized commands for complex operations like prompt generation and session synthesis.
+
+#### 3. Core Artifacts (The "Data")
+
+These are the data objects that flow through the system during a task.
+
+-   **Instances:** A user-authored task definition in a `.instance.md` file. It activates a persona and provides the initial mandate and evidence.
+-   **Handoff Artifacts:** Structured, machine-readable data contracts (typically JSON) that enable communication between sessions (`session_synthesis.json`) or between the PEL and external agents (`JULES_MANIFEST.json`).
 
 ## Directory Structure
 
-The repository is organized to enforce the **Single Source of Truth** principle.
+The repository is organized to enforce the **Single Source of Truth** principle and to separate source artifacts from generated artifacts.
 
 ```
 my-prompt-library/
-├── .github/                # CI/CD workflows (e.g., prompt validation)
-├── engine/                 # Contains versioned System Kernels
-│   └── v1/
-│       └── system_kernel.xml
-├── domains/                # Contains all specialized work areas
-│   └── [domain_name]/
-│       ├── personas/         # Domain-specific persona definitions (base/, mixins/, specialized/)
-│       ├── instances/        # Disposable, task-specific instance requests
-│       ├── workflows/        # Definitions for multi-step tasks
-│       └── knowledge_base/   # NON-CODE artifacts (e.g., blueprints, strategy docs)
+├── .github/ # CI/CD workflows (e.g., prompt validation)
+├── build/ # Generated, ephemeral artifacts (e.g., final prompts). Not version-controlled.
+├── engine/ # Contains versioned System Kernels
+│ └── v1/
+│ └── system_kernel.xml
+├── domains/ # Contains all specialized work areas
+│ └── [domain_name]/
+│ ├── personas/ # Domain-specific persona definitions (base/, mixins/, specialized/)
+│ ├── instances/ # Disposable, task-specific instance requests
+│ ├── workflows/ # Definitions for multi-step tasks
+│ └── knowledge_base/ # CURATED, NON-CODE artifacts (e.g., blueprints, strategy docs)
 │
-├── scripts/                # Helper scripts, like the prompt assembler
-├── src/                    # Example: Your LIVE application source code
+├── logs/ # Raw, unprocessed session logs. Not version-controlled.
+├── scripts/ # Helper scripts, like the prompt assembler
+├── src/ # Example: Your LIVE application source code
 │
-├── PEL_BLUEPRINT.md        # The architectural constitution for this library
-└── README.md               # This file
+├── .gitignore # Specifies which files/directories to ignore
+├── Makefile # The primary automation tool for the library
+├── PEL_BLUEPRINT.md # The architectural constitution for this library
+└── README.md # This file
 ```
 
 ---
@@ -101,15 +122,15 @@ To work on a complex task over multiple sessions without losing context or incur
 
 #### Step 1: At the end of your session
 
-Save the entire conversation log to a file (e.g., `domains/prompt_engineering/knowledge_base/session_log_01.md`).
+Save the entire conversation log to a file (e.g., `logs/session_log_01.md`).
 
 #### Step 2: Synthesize the log
 
-Run an instance prompt that activates the `SESSION-SYNTHESIZER` persona. This will read the large log file and produce a small, structured JSON summary.
+Run the `end-session` command in the Makefile, pointing it to your saved log file. This will generate the prompt needed to create your synthesis artifact.
 
 ```bash
-# Create an instance file for the synthesizer, then run this command
-make generate-prompt INSTANCE=domains/prompt_engineering/instances/synthesize-session.instance.md
+# This command automates the creation of the synthesis prompt
+make end-session LOG=logs/session_log_01.md
 ```
 
 This will create a file like build/synthesize-session.prompt.xml. Execute this prompt and save the resulting JSON to a file (e.g., knowledge_base/session_synthesis_01.json).
