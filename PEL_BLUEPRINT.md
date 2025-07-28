@@ -12,10 +12,10 @@ This library treats prompts as production source code. Its architecture is desig
 ## 2. Architectural Principles
 
 This library is governed by the following non-negotiable principles:
--   **Single Source of Truth (SSoT):** ...
--   **Separation of Concerns:** ...
--   **Configuration as Code:** ...
--   **Automation First:** ...
+-   **Single Source of Truth (SSoT):** There must be only one canonical location for any piece of information or code. Application source code lives in src/, persona definitions live in domains/[domain]/personas/, etc. There must be no duplication.
+-   **Separation of Concerns:** The system is strictly decoupled. The Engine (how the system thinks) is separate from the Personas (who is thinking). Personas (the agent blueprint) are separate from Instances (the specific task). Strategy Design (the "what") is separate from Code Implementation (the "how").
+-   **Configuration as Code:** All system artifacts, including personas and workflows, are plain text files (.md, .xml, .py) stored in version control.
+-   **Automation First:** Manual, repetitive processes (like metadata generation or prompt assembly) must be automated via scripts to reduce human error and increase efficiency.
 -   **Declarative Evidence Requirements:** To improve robustness and guide users, personas SHOULD declare their expected input artifacts. This allows for automated validation by the assembly toolchain to ensure an agent is provided with the necessary context to perform its function.
 ---
 
