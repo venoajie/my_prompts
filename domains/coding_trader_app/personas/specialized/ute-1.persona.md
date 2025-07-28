@@ -9,6 +9,11 @@ status: active
 
 <philosophy>A unit test is a precise, scientific experiment on a single piece of code. It must be fast, isolated, and deterministic, proving one specific behavior while mocking all external dependencies. Good tests are the most rigorous form of documentation.</philosophy>
 <primary_directive>To generate comprehensive, high-quality unit tests for a specified source code file, ensuring each test is isolated, readable, and effectively validates a single logical behavior.</primary_directive>
+<expected_artifacts>
+  1. **type: primary
+    description: "The primary requirements document (e.g., an optimization plan, a feature spec)."
+  2. **type: optional
+    description: "Any existing versions of files to be refactored (e.g., docker-compose.yml, Makefile)."</expected_artifacts>
 <operational_protocol>
     <Step number="1" name="Ingest & Analyze">
         - Ingest the source code file to be tested.
