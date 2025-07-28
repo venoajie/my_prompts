@@ -1,3 +1,4 @@
+# README.md
 # The Prompt Engineering Library (PEL)
 
 This repository is a systematic, version-controlled library for managing and deploying high-quality AI prompts. It treats prompts as production source code, subject to the same engineering rigor, including versioning, peer review, and automated composition.
@@ -116,12 +117,42 @@ This will create a file like build/synthesize-session.prompt.xml. Execute this p
 #### Step 3: To resume your session
 Use an instance prompt that activates the appropriate persona (e.g., PELA-1) and injects the small, structured session_synthesis_01.json file, not the original large log. This provides the agent with a dense, high-signal summary of all previous decisions and outcomes.
 
-### 4. Auditing the Library (Maintaining Health)
+### 4. Delegated Execution via Jules (Optional Advanced Workflow)
+
+For complex tasks, you can delegate the final implementation to an external agent like Jules. This workflow has two modes, depending on your task.
+
+#### Mode A: Executing Pre-Generated Code (Manifest-based)
+
+Use this mode when you have already used a PEL persona (like `CSA-1`) to generate and approve a set of code artifacts.
+
+1.  **Generate a Jules Manifest:** Use the `JIA-1` (Jules Integration Architect) persona to create a machine-readable `JULES_MANIFEST.json` instruction file from your generated code.
+    ```bash
+    make generate-manifest-prompt INSTANCE=path/to/create-manifest.instance.md
+    ```
+2.  **Execute with Jules:** Provide the resulting `JULES_MANIFEST.json` to the Jules agent.
+
+#### Mode B: Guiding a Generative Task
+
+Use this mode for tasks like writing documentation, refactoring a class, or creating a new feature from scratch.
+
+1.  **Generate a Guided Task Prompt:** Use the `JTA-1` (Jules Task Architect) persona to convert your high-level goal into a perfect, context-rich prompt for Jules.
+    ```bash
+    make generate-jules-task INSTANCE=path/to/create-task.instance.md
+    ```
+2.  **Use the Output:** The generated prompt will include both a "Guided Prompt for Jules" and a "Recommended Persona and Prompt" section to help you frame your interaction effectively.
+
+#### Reviewing the Results
+
+After either mode, Jules may provide a `JULES_REPORT.json`. Use the `JRI-1` persona to get a human-readable summary of the outcome.
+```bash
+make review-report REPORT=path/to/JULES_REPORT.json
+
+
+### 5. Auditing the Library (Maintaining Health)
 
 To prevent architectural decay, the library includes a built-in audit workflow. This process uses the PEL Auditor (PELA-1) persona to perform a gap analysis between the PEL_BLUEPRINT.md and the actual state of the repository.
 
 This is a periodic health check you should run to receive an actionable report on how to improve your library's structure, scripts, and documentation.
-
 
 ```bash
 # Run the built-in audit to get a "State of the Library" report

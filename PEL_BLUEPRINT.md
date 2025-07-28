@@ -1,3 +1,4 @@
+# PEL_BLUEPRINT.md
 # Prompt Engineering Library (PEL) - Architectural Blueprint
 
 **Version:** 1.1
@@ -40,5 +41,10 @@ This library is governed by the following non-negotiable principles:
 -   **Evidence Gathering:** The process of determining which artifacts to provide to a prompt is governed by a formal, four-step protocol (Deconstruct Mandate, Consult Persona, Trace Dependencies, Consider Failure Paths), as documented in the root `README.md`.
 -   **Prompt Assembly (Two-Stage):** The `assemble_prompt.py` script executes a two-stage process:
     1.  **Alignment Check:** A fast, lightweight LLM call to the `ALIGNMENT-CHECKER` persona to validate that the chosen agent is appropriate for the mandate.
-    2.  **Final Assembly:** Construction of the full prompt payload, injecting the chosen persona and all necessary knowledge base artifacts.
+    2.  **Final Assembly:** Construction of the full prompt payload, injecting the chosen persona and all necessary knowledge base artifacts.  
+-   **Session Handoff & Synthesis:** To maintain context across long-running collaborations without exceeding token limits, a formal handoff process is used. At the end of a session, the `SESSION-SYNTHESIZER` persona is used to distill the raw conversation log into a compact, structured JSON artifact. This artifact, not the full log, is used to resume the session, ensuring token efficiency and context integrity. This process is automated via the `make end-session` target.
+-   **Delegated Execution (Optional Jules Integration):** The PEL supports a "Brain-to-Hands" workflow with external execution agents like Jules. This workflow operates in two distinct modes:
+    1.  **Manifest-based Execution:** For pre-approved, deterministic changes. The `JIA-1` persona generates a machine-readable `JULES_MANIFEST.json` which is passed to the agent for execution.
+    2.  **Guided Task Generation:** For generative or exploratory tasks. The `JTA-1` persona takes a high-level user goal and generates a guided, natural-language prompt for the agent. This process includes meta-coaching to help the human user interact with the agent effectively.
+    A two-way communication channel is supported via a `JULES_REPORT.json` artifact, which can be ingested by the `JRI-1` persona.
 -   **PEL Audit Loop:** The `PELA-1` persona is used to perform a periodic, holistic audit of the library itself, using this blueprint as its primary source of truth.
