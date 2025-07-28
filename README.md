@@ -44,11 +44,22 @@ my-prompt-library/
 
 ## Core Workflows
 
-This library is operated through two primary workflows, both automated by the `assemble_prompt.py` script.
+This library is operated through three primary workflows.
 
-### 1. Executing a Prompt (The Two-Stage Process)
+### 1. Determining Required Evidence
 
-Executing a task is a sophisticated, interactive process designed to prevent errors before they happen.
+Before writing an instance file, you must determine which documents the persona needs to perform its task. Follow this four-step protocol:
+
+1.  **Deconstruct the Mandate:** Identify the primary action (e.g., `refactor`, `debug`) and the subjects (e.g., `ReconciliationAgent`, `A1 optimization plan`). This gives you your initial list of artifacts.
+2.  **Consult the Persona's Blueprint:** Open the `.persona.md` file for your chosen agent. Its `operational_protocol` explicitly states what it expects to analyze or modify.
+3.  **Trace Dependencies:** Review the primary artifacts for dependencies (e.g., `import` statements in code, `volumes` in Docker Compose) to discover secondary evidence.
+4.  **Consider Failure Paths:** For debugging or testing, consider what other components are involved if the primary component fails (e.g., error handlers, loggers).
+
+### 2. Executing a Prompt (The Two-Stage Process)
+
+#### Step 1: Author an Instance File
+
+Following the protocol above, create a new instance file (e.g., `instances/generate-unit-tests.instance.md`). Use `<Inject src="..."/>` tags with paths relative to the repository root to provide all required evidence.
 
 #### Step 1: Author an Instance File
 
@@ -73,46 +84,23 @@ Generate comprehensive unit tests for the `ReconciliationAgent` class found in t
 
 #### Step 2: Assemble and Execute the Prompt
 
-Use the `assemble_prompt_v3.0.py` script to build the full prompt. This script now performs a two-stage process:
+Use the `Makefile` to generate the final, complete prompt. This is the most reliable and standardized method.
 
-1.  **Stage 1: Alignment Check (Pre-Flight)**
-    The script first makes a fast, low-cost LLM call to a specialized `ALIGNMENT-CHECKER` persona. It compares your mandate against all available personas in the domain. If a better-suited persona is found, it will warn you and offer a chance to switch, preventing you from running a costly task with the wrong agent.
-
-    ```bash
-    $ python scripts/assemble_prompt_v3.0.py ...
-    [ALIGNMENT_WARNING] The requested persona 'CSA-1' may not be the best fit.
-    The persona 'UTE-1' appears to be a much stronger match.
-    Proceed with original, or switch? (original/switch): switch
-    ```
-
-2.  **Stage 2: Final Assembly**
-    Once the correct persona is confirmed, the script assembles the full prompt, injects all file content, and prints the final payload to your terminal, ready to be copied.
-
-    ```bash
-    # This command runs the full two-stage process
-    python scripts/assemble_prompt_v3.0.py domains/coding_trader_app/instances/generate-unit-tests.instance.md | pbcopy
-    ```
-
-### 2. Auditing the Library (Maintaining Health)
-
-To prevent architectural decay, the library includes a built-in audit workflow. This process uses the **PEL Auditor (`PELA-1`)** persona to perform a gap analysis between the `PEL_BLUEPRINT.md` and the actual state of the repository.
-
-This is a periodic health check you should run to receive an actionable report on how to improve your library's structure, scripts, and documentation.
 
 ```bash
+# This command generates the prompt and saves it to the build/ directory
+make generate-prompt INSTANCE=domains/coding_trader_app/instances/generate-unit-tests.instance.md
+```
+
+This will create a file like build/generate-unit-tests.prompt.xml. You can now open this file to review the full prompt before use.
+
+#### Step 3: Execute the Prompt
+Copy the contents of the generated .xml file and paste it into your preferred LLM interface.
+
+### 3. Auditing the Library (Maintaining Health)
+<!-- ... This section is correct, but update the script version for consistency ... -->
+Generated bash
 # Run the built-in audit to get a "State of the Library" report
-python scripts/assemble_prompt_v3.0.py domains/prompt_engineering/instances/run-quarterly-audit.instance.md
-```
-
----
-
-## How to Contribute
-
-All changes to this library must be made via a Pull Request (PR) against the `main` branch.
-
-1.  **Branching:** Create a new feature branch (e.g., `feature/add-new-qsa-persona`).
-2.  **Architectural Changes:** For fundamental changes to the library's structure or principles, the PR **must** begin by proposing an update to `PEL_BLUEPRINT.md`. The approved blueprint then serves as the specification for the implementation work.
-3.  **Make Changes:** Add or modify personas, instances, or scripts according to the blueprint.
-4.  **Provide Validation Evidence:** The PR description is **required** to contain proof that your changes work as expected. This includes the path to the instance file used for testing and the full, unedited output from the LLM.
-5.  **Peer Review:** At least one other collaborator must review and approve the PR.
-```
+make generate-prompt INSTANCE=domains/prompt_engineering/instances/run-quarterly-audit.instance.md
+Use code with caution.
+Bash
