@@ -1,6 +1,6 @@
 # Prompt Engineering Library (PEL) - Architectural Blueprint
 
-**Version:** 1.0
+**Version:** 1.1
 **Status:** Active
 
 ## 1. Core Philosophy
@@ -12,15 +12,11 @@ This library treats prompts as production source code. Its architecture is desig
 ## 2. Architectural Principles
 
 This library is governed by the following non-negotiable principles:
-
--   **Single Source of Truth (SSoT):** There must be only one canonical location for any piece of information or code. Application source code lives in `src/`, persona definitions live in `domains/[domain]/personas/`, etc. There must be no duplication.
--   **Separation of Concerns:** The system is strictly decoupled.
-    -   The **Engine** (how the system thinks) is separate from the **Personas** (who is thinking).
-    -   **Personas** (the agent blueprint) are separate from **Instances** (the specific task).
-    -   **Strategy Design** (the "what") is separate from **Code Implementation** (the "how").
--   **Configuration as Code:** All system artifacts, including personas and workflows, are plain text files (`.md`, `.xml`, `.py`) stored in version control.
--   **Automation First:** Manual, repetitive processes (like metadata generation or prompt assembly) must be automated via scripts to reduce human error and increase efficiency.
-
+-   **Single Source of Truth (SSoT):** ...
+-   **Separation of Concerns:** ...
+-   **Configuration as Code:** ...
+-   **Automation First:** ...
+-   **Declarative Evidence Requirements:** To improve robustness and guide users, personas SHOULD declare their expected input artifacts. This allows for automated validation by the assembly toolchain to ensure an agent is provided with the necessary context to perform its function.
 ---
 
 ## 3. Key Components & Rationale
@@ -41,7 +37,7 @@ This library is governed by the following non-negotiable principles:
 ---
 
 ## 4. Core Workflows
-
+-   **Evidence Gathering:** The process of determining which artifacts to provide to a prompt is governed by a formal, four-step protocol (Deconstruct Mandate, Consult Persona, Trace Dependencies, Consider Failure Paths), as documented in the root `README.md`.
 -   **Prompt Assembly (Two-Stage):** The `assemble_prompt.py` script executes a two-stage process:
     1.  **Alignment Check:** A fast, lightweight LLM call to the `ALIGNMENT-CHECKER` persona to validate that the chosen agent is appropriate for the mandate.
     2.  **Final Assembly:** Construction of the full prompt payload, injecting the chosen persona and all necessary knowledge base artifacts.
