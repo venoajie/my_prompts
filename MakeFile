@@ -1,4 +1,3 @@
-# MakeFile
 # =====================================================================
 # Makefile for the Prompt Engineering Library (PEL)
 # =====================================================================
@@ -68,27 +67,24 @@ end-session:
 		exit 1; \
 	fi
 	@echo "Synthesizing session log: $(LOG)"
-	@# FIX: Ensure the build directory exists before trying to write to it.
-	@mkdir -p $(BUILD_DIR)
-	@# Step 1: Create a temporary, timestamped instance file for the synthesizer
-	@SYNTH_INSTANCE_FILE=$(BUILD_DIR)/synthesize-session-$(TIMESTAMP).instance.md; \
+	@# This entire block is now chained to run in a single shell instance.
+	mkdir -p $(BUILD_DIR); \
+	SYNTH_INSTANCE_FILE=$(BUILD_DIR)/synthesize-session-$(TIMESTAMP).instance.md; \
 	echo "---" > $${SYNTH_INSTANCE_FILE}; \
 	echo "domain: prompt_engineering" >> $${SYNTH_INSTANCE_FILE}; \
 	echo "persona_alias: session-synthesizer" >> $${SYNTH_INSTANCE_FILE}; \
 	echo "---" >> $${SYNTH_INSTANCE_FILE}; \
 	echo "<Mandate><Inject src=\"$(LOG)\" /></Mandate>" >> $${SYNTH_INSTANCE_FILE}; \
 	\
-	@# Step 2: Generate the prompt FOR the synthesizer
-	@SYNTH_PROMPT_FILE=$(BUILD_DIR)/synthesize-session-$(TIMESTAMP).prompt.xml; \
+	SYNTH_PROMPT_FILE=$(BUILD_DIR)/synthesize-session-$(TIMESTAMP).prompt.xml; \
 	$(MAKE) generate-prompt INSTANCE=$${SYNTH_INSTANCE_FILE}; \
 	\
-	@echo ""
-	@echo "$(YELLOW)--------------------------- ACTION REQUIRED ---------------------------$(NC)"
-	@echo "A synthesis prompt has been generated at: $(GREEN)$(SYNTH_PROMPT_FILE)$(NC)"
-	@echo "1. Copy the content of this file and execute it with your LLM."
-	@echo "2. Save the resulting JSON output to your knowledge_base (e.g., session_synthesis_latest.json)."
-	@# FIX: Corrected the truncated line
-	@echo "$(YELLOW)-----------------------------------------------------------------------$(NC)"
+	echo ""; \
+	echo "$(YELLOW)--------------------------- ACTION REQUIRED ---------------------------$(NC)"; \
+	echo "A synthesis prompt has been generated at: $(GREEN)$(SYNTH_PROMPT_FILE)$(NC)"; \
+	echo "1. Copy the content of this file and execute it with your LLM."; \
+	echo "2. Save the resulting JSON output to your knowledge_base (e.g., session_synthesis_latest.json)."; \
+	echo "$(YELLOW)-----------------------------------------------------------------------$(NC)"
 
 .PHONY: generate-manifest-prompt
 generate-manifest-prompt:
@@ -98,7 +94,6 @@ generate-manifest-prompt:
 	fi
 	@echo "Generating prompt to create a Jules Manifest..."
 	@$(MAKE) generate-prompt INSTANCE=$(INSTANCE)
-
 
 .PHONY: debug-failed-run
 debug-failed-run:
@@ -123,7 +118,7 @@ debug-failed-run:
 	echo "</Mandate>" >> $${DEBUG_INSTANCE_FILE}; \
 	\
 	@$(MAKE) generate-prompt INSTANCE=$${DEBUG_INSTANCE_FILE}
-
+	
 .PHONY: generate-jules-task
 generate-jules-task:
 	@if [ -z "$(INSTANCE)" ]; then \
@@ -133,7 +128,6 @@ generate-jules-task:
 	fi
 	@echo "Generating a guided task prompt for Jules..."
 	@$(MAKE) generate-prompt INSTANCE=$(INSTANCE)
-
 
 .PHONY: review-report
 review-report:
