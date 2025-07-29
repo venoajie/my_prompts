@@ -5,7 +5,7 @@
 # --- Configuration ---
 # Centralize the script name here. This is the Single Source of Truth.
 PYTHON_EXEC := $(shell command -v python3 || command -v python)
-ASSEMBLER_SCRIPT = scripts/assemble_prompt_v3.2.py
+ASSEMBLER_SCRIPT = scripts/assemble_prompt_v3.3.py
 BUILD_DIR = build
 TIMESTAMP := $(shell date +%Y%m%d-%H%M%S)
 
