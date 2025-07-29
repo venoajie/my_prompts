@@ -118,27 +118,33 @@ Copy the contents of the generated .xml file and paste it into your preferred LL
 
 ### 3. Managing and Resuming Sessions (The Handoff Workflow)
 
-To work on a complex task over multiple sessions without losing context or incurring high token costs, use the session synthesis workflow.
+To work on a complex task over multiple sessions without losing context or incurring high token costs, use the automated session synthesis workflow.
 
 #### Step 1: At the end of your session
 
 Save the entire conversation log to a file (e.g., `logs/session_log_01.md`).
 
-#### Step 2: Synthesize the log
+#### Step 2: Generate the Synthesis Prompt
 
-Run the `end-session` command in the Makefile, pointing it to your saved log file. This will generate the prompt needed to create your synthesis artifact.
+Run the `end-session` command in the Makefile, pointing it to your saved log file.
 
 ```bash
 # This command automates the creation of the synthesis prompt
 make end-session LOG=logs/session_log_01.md
 ```
 
-This will create a file like build/synthesize-session.prompt.xml. Execute this prompt and save the resulting JSON to a file (e.g., knowledge_base/session_synthesis_01.json).
+This command will not produce the final summary. Instead, it will generate a new prompt file (e.g., build/synthesize-session.prompt.xml) and display an "ACTION REQUIRED" message in your terminal.
 
-#### Step 3: To resume your session
-Use an instance prompt that activates the appropriate persona (e.g., PELA-1) and injects the small, structured session_synthesis_01.json file, not the original large log. This provides the agent with a dense, high-signal summary of all previous decisions and outcomes.
+#### Step 3: Execute the Synthesis Prompt
+Copy the entire content of the generated .xml file and execute it with your LLM. The LLM, acting as the SESSION-SYNTHESIZER, will return a single, structured JSON object.
 
-### 4. Delegated Execution via Jules (Optional Advanced Workflow)
+#### Step 4: Save the Handoff Artifact
+Save the resulting JSON output to a file in your knowledge base (e.g., domains/prompt_engineering/knowledge_base/session_synthesis_01.json).
+
+#### Step 5: To resume your session
+Use an instance prompt that injects the small, structured session_synthesis_01.json file, not the original large log.
+
+#### Step 6: Delegated Execution via Jules (Optional Advanced Workflow)
 
 For complex tasks, you can delegate the final implementation to an external agent like Jules. This workflow has two modes, depending on your task.
 

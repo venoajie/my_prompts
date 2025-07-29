@@ -20,6 +20,7 @@ KB_DIR_NAME = "knowledge_base"
 INSTANCES_DIR_NAME = "instances"
 ALIGNMENT_CHECKER_ALIAS = "alignment-checker"
 PROMPT_ENGINEERING_DOMAIN = "prompt_engineering"
+SHARED_DOMAIN = "shared"
 
 # --- Core Logic ---
 
@@ -56,18 +57,30 @@ def find_artifact(
     alias: str,
     ) -> Path:
     
-    """Finds an artifact file within a domain based on its alias and type."""
-    search_path = repo_root / DOMAINS_DIR_NAME / domain / artifact_type
-    if not search_path.is_dir():
-        raise FileNotFoundError(f"Artifact directory not found: {search_path}")
+    """Finds an artifact file, first in the specified domain, then falling back
+    to the 'shared' domain if not found."""
     
-    matches = list(search_path.glob(f"**/{alias}.*.*"))
-    if not matches:
-        raise FileNotFoundError(f"Could not find {artifact_type} with alias '{alias}' in domain '{domain}'.")
-    if len(matches) > 1:
-        print(f"Warning: Found multiple artifacts for alias '{alias}'; using first one: {matches[0]}", file=sys.stderr)
-    
-    return matches[0]
+    # First, try to find the artifact in the primary domain
+    primary_search_path = repo_root / DOMAINS_DIR_NAME / domain / artifact_type
+    if primary_search_path.is_dir():
+        matches = list(primary_search_path.glob(f"**/{alias}.*.*"))
+        if matches:
+            if len(matches) > 1:
+                print(f"Warning: Found multiple artifacts for alias '{alias}' in domain '{domain}'; using first one: {matches[0]}", file=sys.stderr)
+            return matches[0]
+
+    # If not found, and the domain is not already 'shared', try the shared domain
+    if domain != SHARED_DOMAIN:
+        shared_search_path = repo_root / DOMAINS_DIR_NAME / SHARED_DOMAIN / artifact_type
+        if shared_search_path.is_dir():
+            shared_matches = list(shared_search_path.glob(f"**/{alias}.*.*"))
+            if shared_matches:
+                if len(shared_matches) > 1:
+                    print(f"Warning: Found multiple artifacts for alias '{alias}' in shared domain; using first one: {shared_matches[0]}", file=sys.stderr)
+                return shared_matches[0]
+
+    # If not found in either location, raise an error
+    raise FileNotFoundError(f"Could not find {artifact_type} with alias '{alias}' in domain '{domain}' or in the '{SHARED_DOMAIN}' domain.")
 
 def get_all_persona_metadata(
     repo_root: Path, 

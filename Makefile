@@ -32,6 +32,7 @@ help:
 	@echo "$(GREEN)Core Workflows:$(NC)"
 	@echo "  make generate-prompt INSTANCE=<path>   - Assembles a final prompt XML from an instance file."
 	@echo "  make end-session LOG=<path>            - Creates a synthesis prompt from a session log."
+	@echo "  make generate-manifest             - (Re)generates the root PEL_AGENTS.md file."
 	@echo ""
 	@echo "$(GREEN)Jules Integration Workflows (Optional):$(NC)"
 	@echo "  make generate-manifest-prompt INSTANCE=<path> - Generates a prompt to create a JULES_MANIFEST.json."
@@ -70,25 +71,45 @@ end-session:
 		exit 1; \
 	fi
 	@echo "Synthesizing session log: $(LOG)"
-	@# This entire block is now chained to run in a single shell instance.
-	mkdir -p $(BUILD_DIR); \
-	SYNTH_INSTANCE_FILE=$(BUILD_DIR)/synthesize-session-$(TIMESTAMP).instance.md; \
-	echo "---" > $${SYNTH_INSTANCE_FILE}; \
-	echo "domain: prompt_engineering" >> $${SYNTH_INSTANCE_FILE}; \
-	echo "persona_alias: session-synthesizer" >> $${SYNTH_INSTANCE_FILE}; \
-	echo "---" >> $${SYNTH_INSTANCE_FILE}; \
-	echo "<Mandate><Inject src=\"$(LOG)\" /></Mandate>" >> $${SYNTH_INSTANCE_FILE}; \
-	\
-	SYNTH_PROMPT_FILE=$(BUILD_DIR)/synthesize-session-$(TIMESTAMP).prompt.xml; \
-	$(MAKE) generate-prompt INSTANCE=$${SYNTH_INSTANCE_FILE}; \
-	\
-	echo ""; \
-	echo "$(YELLOW)--------------------------- ACTION REQUIRED ---------------------------$(NC)"; \
-	# FIX: Correctly expand the variable in the final echo statement.
-	echo "A synthesis prompt has been generated at: $(GREEN)$(BUILD_DIR)/synthesize-session-$(TIMESTAMP).prompt.xml$(NC)"; \
-	echo "1. Copy the content of this file and execute it with your LLM."; \
-	echo "2. Save the resulting JSON output to your knowledge_base (e.g., session_synthesis_latest.json)."; \
-	echo "$(YELLOW)-----------------------------------------------------------------------$(NC)"
+	@# FIX: Add the @ prefix to the entire command block to silence it.
+	@( \
+		mkdir -p $(BUILD_DIR); \
+		SYNTH_INSTANCE_FILE=$(BUILD_DIR)/synthesize-session-$(TIMESTAMP).instance.md; \
+		echo "---" > $${SYNTH_INSTANCE_FILE}; \
+		echo "domain: prompt_engineering" >> $${SYNTH_INSTANCE_FILE}; \
+		echo "persona_alias: session-synthesizer" >> $${SYNTH_INSTANCE_FILE}; \
+		echo "---" >> $${SYNTH_INSTANCE_FILE}; \
+		echo "<Mandate><Inject src=\"$(LOG)\" /></Mandate>" >> $${SYNTH_INSTANCE_FILE}; \
+		\
+		SYNTH_PROMPT_FILE=$(BUILD_DIR)/synthesize-session-$(TIMESTAMP).prompt.xml; \
+		$(MAKE) generate-prompt INSTANCE=$${SYNTH_INSTANCE_FILE}; \
+		\
+		echo ""; \
+		echo "$(YELLOW)--------------------------- ACTION REQUIRED ---------------------------$(NC)"; \
+		echo "A synthesis prompt has been generated at: $(GREEN)$${SYNTH_PROMPT_FILE}$(NC)"; \
+		echo "1. Copy the content of this file and execute it with your LLM."; \
+		echo "2. Save the resulting JSON output to your knowledge_base (e.g., session_synthesis_latest.json)."; \
+		echo "$(YELLOW)-----------------------------------------------------------------------$(NC)"; \
+	)
+
+.PHONY: generate-manifest
+generate-manifest:
+	@echo "Finding all persona files..."
+	@( \
+		TEMP_PERSONA_BUNDLE=$(BUILD_DIR)/all_personas.tmp.md; \
+		echo "Bundling personas into $${TEMP_PERSONA_BUNDLE}..."; \
+		find domains -name "*.persona.md" -exec cat {} + > $${TEMP_PERSONA_BUNDLE}; \
+		\
+		MANIFEST_INSTANCE_FILE=$(BUILD_DIR)/generate-manifest.instance.md; \
+		echo "---" > $${MANIFEST_INSTANCE_FILE}; \
+		echo "domain: prompt_engineering" >> $${MANIFEST_INSTANCE_FILE}; \
+		echo "persona_alias: amd-1" >> $${MANIFEST_INSTANCE_FILE}; \
+		echo "---" >> $${MANIFEST_INSTANCE_FILE}; \
+		echo "<Mandate><Inject src=\"$${TEMP_PERSONA_BUNDLE}\" /></Mandate>" >> $${MANIFEST_INSTANCE_FILE}; \
+		\
+		echo "Generating prompt to create the PEL_AGENTS.md manifest..."; \
+		$(MAKE) generate-prompt INSTANCE=$${MANIFEST_INSTANCE_FILE}; \
+	)
 
 .PHONY: generate-manifest-prompt
 generate-manifest-prompt:
