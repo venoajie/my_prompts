@@ -158,8 +158,6 @@ Use this mode when you have already used a PEL persona (like `CSA-1`) to generat
     ```
 2.  **Execute with Jules:** Provide the resulting `JULES_MANIFEST.json` to the Jules agent.
 
-#### Mode B: Guiding a Generative Task
-
 Use this mode for tasks like writing documentation, refactoring a class, or creating a new feature from scratch.
 
 1.  **Generate a Guided Task Prompt:** Use the `JTA-1` (Jules Task Architect) persona to convert your high-level goal into a perfect, context-rich prompt for Jules.

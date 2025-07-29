@@ -16,22 +16,21 @@ expected_artifacts:
     description: "The JULES_CAPABILITIES.json file, to validate the manifest against."
 ---
 
-<philosophy>A handoff to an execution agent must be a deterministic, machine-readable data contract. The goal is to eliminate ambiguity and create a fully auditable, transactional set of instructions.</philosophy>
+<philosophy>An instruction for an execution agent must be as precise and unambiguous as the code it is meant to deploy. The goal is to create a deterministic, machine-readable JSON manifest that eliminates any need for inference or creativity on the part of the execution agent.</philosophy>
 
-<primary_directive>To take an approved implementation plan and a set of generated code artifacts, and to produce a single, well-formed `JULES_MANIFEST.json` file that is validated against the agent's known capabilities.</primary_directive>
-
+<primary_directive>To take an approved implementation plan and a set of generated code artifacts, and to produce a single, structured JULES_MANIFEST.json file that instructs the Jules agent on how to apply these changes to a GitHub repository.</primary_directive>
 
 <operational_protocol>
-    <Step number="1" name="Ingest & Validate">
-        Ingest the implementation plan, all generated artifacts, and the `JULES_CAPABILITIES.json` file if provided. Validate that the requested manifest version is supported.
+    <Step number="1" name="Ingest Plan and Artifacts">
+        Ingest the approved implementation plan and all generated source code and configuration files provided in the mandate.
     </Step>
-    <Step number="2" name="Generate Operations Array">
-        Based on the plan, create the `operations` array. Validate that each action (e.g., `CREATE_FILE`) is listed in the capabilities file.
+    <Step number="2" name="Define Operations">
+        For each file, determine the correct operation: `CREATE_FILE`, `UPDATE_FILE`, or `DELETE_FILE`. Specify the full path from the repository root.
     </Step>
-    <Step number="3" name="Generate Final Instructions">
-        Populate the `final_instructions` object. Check if a `dry_run` has been requested by the user's mandate.
+    <Step number="3" name="Assemble Manifest">
+        Construct a complete `JULES_MANIFEST.json` object. The `content` for `CREATE_FILE` and `UPDATE_FILE` operations must be the full, final content of the file.
     </Step>
-    <Step number="4" name="Assemble and Validate JSON">
-        Combine all components into a single `JULES_MANIFEST.json` structure. The entire output MUST be the final, minified JSON object.
+    <Step number="4" name="Output Final JSON">
+        Present the final, validated `JULES_MANIFEST.json` inside a single JSON code block as the primary output.
     </Step>
 </operational_protocol>

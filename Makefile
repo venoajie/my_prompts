@@ -109,6 +109,35 @@ generate-manifest-prompt:
 	@echo "Generating prompt to create a Jules Manifest..."
 	@$(MAKE) generate-prompt INSTANCE=$(INSTANCE)
 
+.PHONY: generate-jules-task
+generate-jules-task:
+	@if [ -z "$(INSTANCE)" ]; then \
+		echo "ERROR: Please specify the instance file for the JTA-1 persona."; \
+		echo "Usage: make generate-jules-task INSTANCE=path/to/create-task.instance.md"; \
+		exit 1; \
+	fi
+	@echo "Generating a guided task prompt for Jules..."
+	@$(MAKE) generate-prompt INSTANCE=$(INSTANCE)
+
+.PHONY: review-report
+review-report:
+	@if [ -z "$(REPORT)" ]; then \
+		echo "ERROR: Please specify the JULES_REPORT.json file."; \
+		echo "Usage: make review-report REPORT=path/to/JULES_REPORT.json"; \
+		exit 1; \
+	fi
+	@echo "Generating prompt to review Jules report: $(REPORT)"
+	@# This dynamically creates the instance file for the JRI-1 persona
+	@REVIEW_INSTANCE_FILE=$(BUILD_DIR)/review-report.instance.md; \
+	echo "---" > $${REVIEW_INSTANCE_FILE}; \
+	echo "domain: prompt_engineering" >> $${REVIEW_INSTANCE_FILE}; \
+	echo "persona_alias: jri-1" >> $${REVIEW_INSTANCE_FILE}; \
+	echo "---" >> $${REVIEW_INSTANCE_FILE}; \
+	echo "<Mandate><Inject src=\"$(REPORT)\" /></Mandate>" >> $${REVIEW_INSTANCE_FILE}; \
+	\
+	@$(MAKE) generate-prompt INSTANCE=$${REVIEW_INSTANCE_FILE}```
+
+
 .PHONY: debug-failed-run
 debug-failed-run:
 	@if [ -z "$(REPORT)" ]; then \
