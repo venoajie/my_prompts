@@ -173,6 +173,16 @@ Use this mode for tasks like writing documentation, refactoring a class, or crea
 After either mode, Jules may provide a `JULES_REPORT.json`. Use the `JRI-1` persona to get a human-readable summary of the outcome.
 ```bash
 make review-report REPORT=path/to/JULES_REPORT.json
+    ```
+
+### 4. Generating the Agent Manifest
+
+To ensure the high-level `PEL_AGENTS.md` file is always up-to-date with the latest personas in the library, use the automated generation command.
+
+```bash
+# This command finds all personas and generates a prompt to create the manifest
+make generate-manifest
+    ```
 
 
 ### 5. Auditing the Library (Maintaining Health)

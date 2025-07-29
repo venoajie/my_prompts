@@ -28,6 +28,9 @@ This library is governed by the following non-negotiable principles:
 -   **/domains:**
     -   **Purpose:** To create isolated workspaces for different problem areas (e.g., `coding_trader_app`, `prompt_engineering`).
     -   **Rationale:** Prevents cross-contamination of personas and knowledge bases, ensuring the system remains modular and scalable.
+-   **/domains/shared:**
+    -   **Purpose:** To contain globally reusable, domain-agnostic personas, primarily `base/` and `mixins/`.
+    -   **Rationale:** Enforces the "Don't Repeat Yourself" (DRY) principle by providing a single, canonical location for components that are inherited by personas across multiple specialized domains.
 -   **/domains/[domain]/personas:**
     -   **Purpose:** To store individual persona definition files, structured into `base/`, `mixins/`, and `specialized/`.
     -   **Rationale:** Models the inheritance hierarchy on the filesystem, making relationships explicit and promoting reuse.
@@ -43,6 +46,7 @@ This library is governed by the following non-negotiable principles:
     1.  **Alignment Check:** A fast, lightweight LLM call to the `ALIGNMENT-CHECKER` persona to validate that the chosen agent is appropriate for the mandate.
     2.  **Final Assembly:** Construction of the full prompt payload, injecting the chosen persona and all necessary knowledge base artifacts.  
 -   **Session Handoff & Synthesis:** To maintain context across long-running collaborations without exceeding token limits, a formal handoff process is used. At the end of a session, the `SESSION-SYNTHESIZER` persona is used to distill the raw conversation log into a compact, structured JSON artifact. This process is initiated by the `make end-session` target, which **generates a prompt for manual execution by the user.** This artifact, not the full log, is used to resume the session, ensuring token efficiency and context integrity.
+-   **Agent Manifest Generation:** The `PEL_AGENTS.md` file, which serves as the high-level manifest of the library's capabilities, is generated and kept up-to-date via the automated `make generate-manifest` target. This ensures the documentation of agents is always in sync with the source files.
 -   **Delegated Execution (Optional Jules Integration):** The PEL supports a "Brain-to-Hands" workflow with external execution agents like Jules. This workflow operates in two distinct modes:
     1.  **Manifest-based Execution:** For pre-approved, deterministic changes. The `JIA-1` persona generates a machine-readable `JULES_MANIFEST.json` which is passed to the agent for execution.
     2.  **Guided Task Generation:** For generative or exploratory tasks. The `JTA-1` persona takes a high-level user goal and generates a guided, natural-language prompt for the agent. This process includes meta-coaching to help the human user interact with the agent effectively.
