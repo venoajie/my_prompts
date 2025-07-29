@@ -6,6 +6,7 @@
 # Centralize the script name here. This is the Single Source of Truth.
 PYTHON_EXEC := $(shell command -v python3 || command -v python)
 ASSEMBLER_SCRIPT = scripts/assemble_prompt_v3.3.py
+PEL_TOOLKIT_SCRIPT = scripts/pel_toolkit.py
 BUILD_DIR = build
 TIMESTAMP := $(shell date +%Y%m%d-%H%M%S)
 
@@ -61,7 +62,7 @@ generate-prompt:
 		INSTANCE_BASENAME=$$(basename $(INSTANCE) .instance.md); \
 		OUTPUT_FILE=$(BUILD_DIR)/$${INSTANCE_BASENAME}.prompt.xml; \
 		echo "Generating prompt for [$(INSTANCE)] -> [$${OUTPUT_FILE}]"; \
-		$(PYTHON_EXEC) $(ASSEMBLER_SCRIPT) $(INSTANCE) > $${OUTPUT_FILE}; \
+		$(PYTHON_EXEC) $(PEL_TOOLKIT_SCRIPT) $(INSTANCE) > $${OUTPUT_FILE}; \
 	)
 
 .PHONY: end-session
@@ -94,22 +95,10 @@ end-session:
 
 .PHONY: generate-manifest
 generate-manifest:
-	@echo "Finding all persona files..."
-	@( \
-		TEMP_PERSONA_BUNDLE=$(BUILD_DIR)/all_personas.tmp.md; \
-		echo "Bundling personas into $${TEMP_PERSONA_BUNDLE}..."; \
-		find domains -name "*.persona.md" -exec cat {} + > $${TEMP_PERSONA_BUNDLE}; \
-		\
-		MANIFEST_INSTANCE_FILE=$(BUILD_DIR)/generate-manifest.instance.md; \
-		echo "---" > $${MANIFEST_INSTANCE_FILE}; \
-		echo "domain: prompt_engineering" >> $${MANIFEST_INSTANCE_FILE}; \
-		echo "persona_alias: amd-1" >> $${MANIFEST_INSTANCE_FILE}; \
-		echo "---" >> $${MANIFEST_INSTANCE_FILE}; \
-		echo "<Mandate><Inject src=\"$${TEMP_PERSONA_BUNDLE}\" /></Mandate>" >> $${MANIFEST_INSTANCE_FILE}; \
-		\
-		echo "Generating prompt to create the PEL_AGENTS.md manifest..."; \
-		$(MAKE) generate-prompt INSTANCE=$${MANIFEST_INSTANCE_FILE}; \
-	)
+	@echo "Generating PEL_AGENTS.md manifest directly from source files..."
+	@# This is now a single, deterministic, and fast command.
+	@$(PYTHON_EXEC) $(PEL_TOOLKIT_SCRIPT) --generate-manifest > PEL_AGENTS.md
+	@echo "$(GREEN)PEL_AGENTS.md has been successfully regenerated.$(NC)"
 
 .PHONY: generate-manifest-prompt
 generate-manifest-prompt:

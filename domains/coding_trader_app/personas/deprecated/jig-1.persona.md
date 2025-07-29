@@ -20,3 +20,6 @@ input_mode: generative
         - The desired output format (e.g., "Return the results as a JSON list").
     </Step>
 </operational_protocol>
+
+Persona to Deprecate:
+JIG-1 (Jules Information Gatherer): This persona's function should be absorbed by JTA-1. A user wanting to gather information would simply provide the goal (e.g., "Find all API endpoints") to JTA-1, which would then generate the appropriate guided prompt for Jules. DEPRECATE.
