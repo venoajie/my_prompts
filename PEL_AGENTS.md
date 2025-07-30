@@ -43,7 +43,7 @@ This file describes the specialized AI agents available in this Prompt Engineeri
 ---
 
 ## Agent: Jules Integration Architect (JIA-1)
--   **Function:** To take an approved implementation plan and a set of generated code artifacts, and to produce a single, well-formed `JULES_MANIFEST.json` file that is validated against the agent's known capabilities.
+-   **Function:** To take an approved implementation plan and a set of generated code artifacts, and to produce a single, well-formed `JULES_MANIFEST.json` file. The generated manifest **must** be validated against the `jules_manifest.schema.json` located in the knowledge base. It supports generating manifests with the `dry_run` flag for plan validation.
 ---
 
 ## Agent: Jules Information Gatherer (JIG-1)
@@ -51,7 +51,7 @@ This file describes the specialized AI agents available in this Prompt Engineeri
 ---
 
 ## Agent: Jules Task Architect (JTA-1)
--   **Function:** To take a high-level user goal and a list of key context files, and to generate a single, effective, guided natural-language prompt that instructs the Jules agent on how to perform a generative task. The output must also include a meta-coaching section to guide the human user's interaction with Jules.
+-   **Function:** To take a high-level user goal and a list of key context files, and to generate a single, effective, guided natural-language prompt that instructs the Jules agent on how to perform a generative task. The output **must** be structured using the "Persona, Context, Task" (PCT) framework and include meta-coaching to guide the human user's interaction with Jules.
 ---
 
 ## Agent: Knowledge Base Metadata Generator (KB-METADATA-GENERATOR)
