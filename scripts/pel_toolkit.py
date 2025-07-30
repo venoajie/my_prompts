@@ -312,7 +312,11 @@ def generate_agent_manifest(repo_root: Path):
     print("This file describes the specialized AI agents available in this Prompt Engineering Library.\n")
     all_personas_paths = (repo_root / DOMAINS_DIR_NAME).glob('**/*.persona.md')
 
-    for persona_file in sorted(list(all_personas_paths)):
+    for persona_file in all_personas_paths:
+        # Exclude deprecated personas from the manifest
+        if 'deprecated' in str(persona_file):
+            continue
+
         metadata, content = load_artifact_with_frontmatter(persona_file)
         
         alias = metadata.get("alias")
@@ -327,6 +331,19 @@ def generate_agent_manifest(repo_root: Path):
 
         print(f"## Agent: {title} ({alias})")
         print(f"-   **Function:** {primary_directive}")
+                
+        # Extract and format expected_artifacts
+        expected_artifacts = metadata.get("expected_artifacts")
+        if isinstance(expected_artifacts, list) and expected_artifacts:
+            print("-   **Expected Inputs:**")
+            for artifact in expected_artifacts:
+                if isinstance(artifact, dict):
+                    artifact_id = artifact.get('id', 'N/A')
+                    artifact_type = artifact.get('type', 'N/A')
+                    artifact_desc = artifact.get('description', 'No description.')
+                    print(f"    -   `{artifact_id}` ({artifact_type}): {artifact_desc}")
+        # --- ENHANCEMENT END ---
+            
         print("---\n")
 
 
