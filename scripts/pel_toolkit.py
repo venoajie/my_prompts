@@ -56,7 +56,6 @@ def load_artifact_with_frontmatter(path: Path) -> Tuple[dict, str]:
         print(f"Error parsing frontmatter in {path}: {e}", file=sys.stderr)
         return {}, text
 
-
 def find_artifact(
     repo_root: Path,
     domain: str,
@@ -65,7 +64,7 @@ def find_artifact(
 ) -> Optional[Path]:
     """
     Finds an artifact file by alias, checking primary domain then shared domain.
-    This version is more specific about file extensions for robustness.
+    This version is enhanced to explicitly ignore any 'deprecated' directories.
     """
     search_alias = alias.lower()
 
@@ -73,12 +72,17 @@ def find_artifact(
         if not base_path.is_dir():
             return None
         for ext in ARTIFACT_EXTENSIONS:
-            # Match against the full filename (alias + extension)
             matches = list(base_path.glob(f"**/{search_alias}{ext}"))
-            if matches:
-                if len(matches) > 1:
-                    print(f"Warning: Found multiple artifacts for alias '{alias}'; using first one: {matches[0]}", file=sys.stderr)
-                return matches[0]
+            
+            # --- ENHANCEMENT: Filter out any results from a 'deprecated' directory ---
+            filtered_matches = [
+                p for p in matches if 'deprecated' not in p.parts
+            ]
+            
+            if filtered_matches:
+                if len(filtered_matches) > 1:
+                    print(f"Warning: Found multiple artifacts for alias '{alias}'; using first one: {filtered_matches[0]}", file=sys.stderr)
+                return filtered_matches[0]
         return None
 
     # 1. Search in the primary domain
@@ -94,7 +98,7 @@ def find_artifact(
         if found_path:
             return found_path
 
-    return None # Return None instead of raising error here, let caller handle it.
+    return None# Return None instead of raising error here, let caller handle it.
 
 
 def get_all_persona_metadata(
@@ -287,8 +291,6 @@ def _get_system_context(repo_root: Path) -> str:
         return ""
 
     return f"<SystemContext>{''.join(context_blocks)}</SystemContext>\n"
-
-
 
 def assemble_full_prompt(
     instance_path: Path,

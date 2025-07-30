@@ -159,6 +159,19 @@ debug-failed-run:
 	@$(MAKE) generate-prompt INSTANCE=$${DEBUG_INSTANCE_FILE}
 
 # =====================================================================
+# WORKFLOW AUTOMATION
+# =====================================================================
+.PHONY: handoff-plan
+handoff-plan:
+	@if [ -z "$(PLAN_FILE)" ]; then echo "ERROR: Please set PLAN_FILE."; exit 1; fi
+	@if [ -z "$(TARGET_INSTANCE)" ]; then echo "ERROR: Please set TARGET_INSTANCE."; exit 1; fi
+	@echo "Injecting plan from [$(PLAN_FILE)] into [$(TARGET_INSTANCE)]..."
+	@# This is a robust way to replace a placeholder in a file.
+	@# It requires a placeholder like <!-- PASTE_PLAN_HERE --> in the instance file.
+	@sed -i.bak -e "/<!-- PASTE_PLAN_HERE -->/r $(PLAN_FILE)" -e "/<!-- PASTE_PLAN_HERE -->/d" $(TARGET_INSTANCE)
+	@echo "$(GREEN)✓ Handoff complete. '$(TARGET_INSTANCE)' has been updated.$(NC)"
+
+# =====================================================================
 # UTILITIES
 # =====================================================================
 clean:
