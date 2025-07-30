@@ -265,6 +265,31 @@ def inject_knowledge_base(
 
     return "".join(str(c) for c in soup.root.contents)
 
+
+def _get_system_context(repo_root: Path) -> str:
+    """
+    Gathers system-level context and formats it as an XML block.
+    Currently captures the Git commit hash.
+    """
+    context_blocks = []
+    # Capture Git commit hash
+    try:
+        commit_hash = subprocess.check_output(
+            ['git', 'rev-parse', 'HEAD'],
+            cwd=repo_root,
+            text=True
+        ).strip()
+        context_blocks.append(f"<CommitHash>{commit_hash}</CommitHash>")
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        print("Warning: Could not determine git commit hash. It will not be included in the context.", file=sys.stderr)
+
+    if not context_blocks:
+        return ""
+
+    return f"<SystemContext>{''.join(context_blocks)}</SystemContext>\n"
+
+
+
 def assemble_full_prompt(
     instance_path: Path,
     chosen_alias: str,
@@ -275,16 +300,8 @@ def assemble_full_prompt(
     instance_meta, instance_content_block = load_artifact_with_frontmatter(instance_path)
     domain = instance_meta["domain"]
 
-    try:
-        commit_hash = subprocess.check_output(
-            ['git', 'rev-parse', 'HEAD'],
-            cwd=repo_root,
-            text=True
-        ).strip()
-        system_context = f"<SystemContext><CommitHash>{commit_hash}</CommitHash></SystemContext>"
-        instance_content_block = system_context + "\n" + instance_content_block
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        print("Warning: Could not determine git commit hash. Proceeding without it.", file=sys.stderr)
+    system_context = _get_system_context(repo_root)
+    instance_content_block = system_context + instance_content_block
     
     target_repo_rel_path = instance_meta.get("target_repo_path")
     if target_repo_rel_path:
