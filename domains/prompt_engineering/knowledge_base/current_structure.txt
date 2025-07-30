@@ -21,17 +21,10 @@
 │   │   │   ├── GENERATE_SESSION_HANDOFF-v2.md
 │   │   │   ├── generate-system-contracts.instance.md
 │   │   │   ├── implement-a1-optimizations.instance.md
-│   │   │   ├── oci
-│   │   │   ├── PEL_INSTANCE_REQUEST_001.md
-│   │   │   ├── PEL_INSTANCE_REQUEST_deployment.md
-│   │   │   ├── PEL_INSTANCE_REQUEST_TEST_STRATEGY.prompt
-│   │   │   ├── PEL_INSTANCE_REQUEST_UNIT_TEST_RECONCILIATION.prompt
 │   │   │   ├── qtsa-1.mandate.md
 │   │   │   ├── refactor-blueprint-for-ai.instance.md
 │   │   │   ├── resume-architect-session.instance.md
 │   │   │   ├── run-quarterly-audit.instance.md
-│   │   │   ├── test
-│   │   │   ├── TESTING_APPLICATION_DRAFTS.md
 │   │   │   └── update-readme-for-multi-env.instance.md
 │   │   ├── knowledge_base
 │   │   │   ├── a1_flex_optimization_plan.md
@@ -39,17 +32,6 @@
 │   │   │   ├── session_log_01.md
 │   │   │   └── session_synthesis_01.json
 │   │   ├── personas
-│   │   │   ├── coding
-│   │   │   │   ├── persona_assistant_Metis
-│   │   │   │   ├── persona_BASE.xml
-│   │   │   │   ├── persona_cd-1_diagnostician_v2.0.md
-│   │   │   │   ├── persona_cd-2_diagnostician_v2.0.md
-│   │   │   │   ├── persona_cd-2_diagnostician_v3.0.md
-│   │   │   │   ├── persona_code_forge
-│   │   │   │   ├── persona coding.md
-│   │   │   │   ├── persona_refresh.md
-│   │   │   │   ├── persona_se-1_systems_evolver.md
-│   │   │   │   └── persona_SE-1_systems_evolver.md
 │   │   │   ├── deprecated
 │   │   │   │   ├── amd-1.persona.md
 │   │   │   │   ├── jig-1.persona.md
@@ -115,12 +97,10 @@
 ├── engine
 │   └── v1
 │       └── system_kernel.xml
-├── final_prompt.xml
 ├── ideas
 │   ├── persona_CENDANA_EKSEKUTOR (CE-1).md
 │   ├── persona_original_improve_persona
 │   ├── persona_original_reduce_hallucinations.md
-│   ├── persona_specialist.md
 │   └── _template_persona.md
 ├── logs
 │   └── pel_architect_session_01.md
@@ -138,4 +118,4 @@
 └── workflows
     └── _template_workflow.md
 
-29 directories, 107 files
+28 directories, 88 files
