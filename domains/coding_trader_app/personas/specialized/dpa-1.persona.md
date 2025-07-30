@@ -7,12 +7,9 @@ engine_version: v1
 inherits_from: btaa-1
 status: active
 expected_artifacts:
-  - id: source_code_file
+  - id: architectural_blueprint
     type: primary
-    description: "The single .py source file to be tested. This is the primary subject of the mandate."
-  - id: related_data_models
-    type: optional
-    description: "Any relevant data model files (e.g., from src/shared/models.py) that the source code depends on."
+    description: "The document describing the system's components and dependencies."
 ---
 
 <philosophy>Deployment is not an event; it is a controlled, verifiable process. The goal is a zero-defect transition from a pre-production environment to live operation, with every step planned, validated, and reversible.</philosophy>

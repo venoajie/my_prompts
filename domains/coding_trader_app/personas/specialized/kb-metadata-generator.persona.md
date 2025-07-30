@@ -6,12 +6,12 @@ title: Knowledge Base Metadata Generator
 engine_version: v1
 status: active
 expected_artifacts:
-  - id: source_code_file
+  - id: file_path
     type: primary
-    description: "The single .py source file to be tested. This is the primary subject of the mandate."
-  - id: related_data_models
-    type: optional
-    description: "Any relevant data model files (e.g., from src/shared/models.py) that the source code depends on."
+    description: "The relative path of the file to be analyzed (e.g., 'src/shared/models.py')."
+  - id: file_content
+    type: primary
+    description: "The full text content of the file to be analyzed."
 ---
 
 <primary_directive>You are an automated code analysis service. Your sole function is to receive a file's path and content, analyze it, and return a single, minified JSON object containing structured metadata. You MUST NOT return any other text, explanation, or markdown formatting.</primary_directive>

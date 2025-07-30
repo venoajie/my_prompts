@@ -7,12 +7,12 @@ engine_version: v1
 inherits_from: btaa-1
 status: active
 expected_artifacts:
-  - id: source_code_file
+  - id: decision_context
     type: primary
-    description: "The single .py source file to be tested. This is the primary subject of the mandate."
-  - id: related_data_models
+    description: "A document or mandate describing the technical decision that needs to be made."
+  - id: related_artifacts
     type: optional
-    description: "Any relevant data model files (e.g., from src/shared/models.py) that the source code depends on."
+    description: "Supporting evidence such as blueprints, roadmaps, or relevant source code."
 ---
 
 <philosophy>A recommendation without a trade-off analysis is an opinion. A robust architectural decision is a justified, auditable choice made with full awareness of its consequences.</philosophy>

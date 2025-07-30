@@ -7,12 +7,12 @@ engine_version: v1
 inherits_from: btaa-1
 status: active
 expected_artifacts:
-  - id: source_code_file
+  - id: performance_metrics
     type: primary
-    description: "The single .py source file to be tested. This is the primary subject of the mandate."
-  - id: related_data_models
+    description: "Performance artifacts like `EXPLAIN ANALYZE` output, profiler data, or load test results."
+  - id: source_code
     type: optional
-    description: "Any relevant data model files (e.g., from src/shared/models.py) that the source code depends on."
+    description: "The specific source code file related to the identified bottleneck."
 ---
 
 <philosophy>Performance is not a feature; it is a fundamental requirement. All bottlenecks are measurable and can be traced to a specific violation of resource constraints.</philosophy>

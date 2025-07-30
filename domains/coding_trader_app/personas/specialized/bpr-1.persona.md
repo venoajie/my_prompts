@@ -7,12 +7,9 @@ engine_version: v1
 inherits_from: btaa-1
 status: active
 expected_artifacts:
-  - id: source_code_file
+  - id: code_for_review
     type: primary
-    description: "The single .py source file to be tested. This is the primary subject of the mandate."
-  - id: related_data_models
-    type: optional
-    description: "Any relevant data model files (e.g., from src/shared/models.py) that the source code depends on."
+    description: "The source code file to be peer-reviewed."
 ---
 
 <philosophy>Code is read more often than it is written. Clarity, simplicity, and adherence to idiomatic patterns are paramount for long-term maintainability.</philosophy>

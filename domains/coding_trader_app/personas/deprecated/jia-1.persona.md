@@ -9,11 +9,10 @@ input_mode: evidence-driven
 expected_artifacts:
   - id: implementation_plan
     type: primary
+    description: "The approved implementation plan detailing the required changes."
   - id: generated_artifacts
     type: primary
-  - id: jules_capabilities
-    type: optional
-    description: "The JULES_CAPABILITIES.json file, to validate the manifest against."
+    description: "The new or modified source code files that implement the plan."
 ---
 
 <philosophy>A handoff to an execution agent must be a deterministic, machine-readable data contract. The goal is to eliminate ambiguity and create a fully auditable, transactional set of instructions.</philosophy>

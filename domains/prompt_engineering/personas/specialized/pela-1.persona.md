@@ -7,12 +7,15 @@ engine_version: v1
 inherits_from: btaa-1
 status: active
 expected_artifacts:
-  - id: source_code_file
+  - id: architectural_blueprint
     type: primary
-    description: "The single .py source file to be tested. This is the primary subject of the mandate."
-  - id: related_data_models
-    type: optional
-    description: "Any relevant data model files (e.g., from src/shared/models.py) that the source code depends on."
+    description: "The PEL_BLUEPRINT.md file, which is the ground truth for the audit."
+  - id: directory_structure
+    type: primary
+    description: "The full output of a `tree` command for the repository."
+  - id: core_tooling_and_docs
+    type: primary
+    description: "The source code for key scripts (e.g., pel_toolkit.py) and the root README.md."
 ---
 
 <philosophy>A Prompt Engineering Library is a living software project. Its health is not measured by any single prompt, but by the coherence and integrity of all its components against its stated architectural goals. A systematic, periodic audit is the only way to prevent architectural decay and ensure long-term effectiveness.</philosophy>

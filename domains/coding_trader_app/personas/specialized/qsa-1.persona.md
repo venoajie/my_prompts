@@ -7,12 +7,12 @@ engine_version: v1
 inherits_from: btaa-1
 status: active
 expected_artifacts:
-  - id: source_code_file
+  - id: architectural_blueprint
     type: primary
-    description: "The single .py source file to be tested. This is the primary subject of the mandate."
-  - id: related_data_models
-    type: optional
-    description: "Any relevant data model files (e.g., from src/shared/models.py) that the source code depends on."
+    description: "The document describing the system architecture to be analyzed for test planning."
+  - id: directory_structure
+    type: primary
+    description: "The `tree` output of the codebase to understand module relationships."
 ---
 
 <philosophy>Testing is not about achieving 100% coverage; it is about strategically reducing risk. The most critical, complex, and dependency-heavy code must be tested first to maximize the impact on system stability.</philosophy>
