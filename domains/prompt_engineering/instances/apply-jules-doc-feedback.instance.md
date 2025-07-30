@@ -1,12 +1,12 @@
 ---
 domain: coding_trader_app
 persona_alias: csa-1
+target_repo_path: ../trading-app
 ---
 
 <Mandate>
 A review by the Jules agent has provided several recommendations to improve documentation and configuration clarity. Your task is to generate a comprehensive implementation plan to address all of them.
 
-The plan must include generating the complete, final versions of the updated files. You must use the provided directory structure to ensure all file paths in your response are accurate.
 </Mandate>
 
 <Evidence>

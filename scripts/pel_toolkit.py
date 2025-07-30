@@ -225,83 +225,85 @@ def assemble_persona_content(
     return f"{parent_content_xml}\n{current_persona_xml}"
 
 def inject_knowledge_base(
-    instance_content: str, 
-    repo_root: Path, 
-    domain: str,
-    ) -> str:
-    
-    """Injects file content into the instance XML by resolving paths from the repo root."""
+    instance_content: str,
+    base_path: Path,
+) -> str:
+    """
+    Injects file content into the instance XML by resolving <Inject> tags
+    relative to a specified base path.
+    """
+    xml_fragment = f"<root>{instance_content}</root>"
+    soup = BeautifulSoup(xml_fragment, 'xml')
 
-    kb_path = repo_root / DOMAINS_DIR_NAME / domain / KB_DIR_NAME
-
-    if not kb_path.is_dir():
-        print(f"Warning: Knowledge base directory for domain '{domain}' not found at '{kb_path}'. Only repo-root paths will be resolved.", file=sys.stderr)
-
-    soup = BeautifulSoup(instance_content, 'xml')
     for tag in soup.find_all('Inject'):
         src_file = tag.get('src')
         if not src_file:
             print(f"Warning: Found <Inject> tag without 'src' attribute. Skipping.", file=sys.stderr)
             continue
 
-        doc_path = (repo_root / src_file).resolve()
-        
-        if not doc_path.is_relative_to(repo_root.resolve()):
-             print(f"Error: Path traversal attempt blocked. '{src_file}' is outside the repo.", file=sys.stderr)
-             tag.string = "<!-- INJECTION ERROR: PATH TRAVERSAL BLOCKED -->"
-             continue
+        doc_path = (base_path / src_file).resolve()
 
+        if not doc_path.is_relative_to(base_path.resolve()):
+            print(f"Error: Path traversal attempt blocked. '{src_file}' is outside the repo.", file=sys.stderr)
+            tag.string = "<!-- INJECTION ERROR: PATH TRAVERSAL BLOCKED -->"
+            continue
 
         if doc_path.is_file():
-            file_content = doc_path.read_text()
-            tag.clear()
-            tag.append(CData(f"\n{file_content}\n"))
-        elif kb_path.is_dir() and (kb_path / src_file).is_file():
-            fallback_path = (kb_path / src_file).resolve()
-            file_content = fallback_path.read_text()
-            tag.clear()
-            tag.append(CData(f"\n{file_content}\n"))
+            try:
+                file_content = doc_path.read_text(encoding='utf-8')
+                # Use the local base_path variable for relative path calculation ---
+                new_tag = soup.new_tag("InjectedArtifact", src=str(doc_path.relative_to(base_path)))
+                new_tag.append(CData(f"\n{file_content}\n"))
+                tag.replace_with(new_tag)
+            except Exception as e:
+                print(f"Error reading file '{src_file}': {e}", file=sys.stderr)
+                tag.string = f"<!-- INJECTION ERROR: COULD NOT READ FILE: {src_file} -->"
         else:
-            print(f"Warning: File '{src_file}' not found at repo root or in KB. Tag will be empty.", file=sys.stderr)
-            tag.string = "<!-- INJECTION ERROR: SOURCE FILE NOT FOUND -->"
-    
-    return "".join(str(c) for c in soup.contents)
+            print(f"Warning: File '{src_file}' not found. Tag will be replaced with an error.", file=sys.stderr)
+            tag.string = f"<!-- INJECTION ERROR: SOURCE FILE NOT FOUND: {src_file} -->"
+
+    return "".join(str(c) for c in soup.root.contents)
 
 def assemble_full_prompt(
-    instance_path: Path, 
+    instance_path: Path,
     chosen_alias: str,
-    ) -> str:
-    
-    """Main assembly function, now takes the chosen_alias as an argument."""
-    repo_root = find_repo_root(instance_path)
-    instance_meta, instance_mandate_block = load_artifact_with_frontmatter(instance_path)
-    domain = instance_meta["domain"]
-    
-    mandate_match = re.search(r'<Mandate>(.*?)</Mandate>', instance_mandate, re.DOTALL)
-    if not mandate_match:
-        raise ValueError("Instance file is missing a <Mandate> block.")
+) -> str:
 
-    injected_mandate_block = inject_knowledge_base(instance_mandate_block, repo_root, domain)
-    
+    """Main assembly function, now aware of target_repo_path."""
+    repo_root = find_repo_root(instance_path)
+    instance_meta, instance_content_block = load_artifact_with_frontmatter(instance_path)
+    domain = instance_meta["domain"]
+
+    target_repo_rel_path = instance_meta.get("target_repo_path")
+    if target_repo_rel_path:
+        injection_base_path = (repo_root / target_repo_rel_path).resolve()
+        if not injection_base_path.is_dir():
+            raise FileNotFoundError(f"Target repository path does not exist: {injection_base_path}")
+    else:
+        injection_base_path = repo_root
+
+    # Pass the correct base path to the injection function ---
+    injected_instance_block = inject_knowledge_base(instance_content_block, injection_base_path)
+
     full_persona_content = assemble_persona_content(repo_root, domain, chosen_alias)
-    
+
     persona_path = find_artifact(repo_root, domain, PERSONAS_DIR_NAME, chosen_alias)
     persona_meta, _ = load_artifact_with_frontmatter(persona_path)
     engine_version = persona_meta.get("engine_version", "v1")
-    
-    engine_path = repo_root / ENGINE_DIR_NAME / engine_version / "system_kernel.xml"
-    engine_content = engine_path.read_text()    
 
-    # Reconstruct the Mandate tag around the processed content
+    engine_path = repo_root / ENGINE_DIR_NAME / engine_version / "system_kernel.xml"
+    engine_content = engine_path.read_text()
+
     final_instance_block = f"""
 <Instance>
     <Runtime>
         <ActivatePersona alias="{chosen_alias}"/>
-        {injected_mandate_block}
+        {injected_instance_block}
     </Runtime>
 </Instance>
 """
     return f"{engine_content}\n\n<PersonaLibrary>\n{full_persona_content}\n</PersonaLibrary>\n{final_instance_block}"
+
 
 def generate_agent_manifest(repo_root: Path):
     """
