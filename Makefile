@@ -1,11 +1,11 @@
 # =====================================================================
 # Makefile for the Prompt Engineering Library (PEL)
+# Version: 2.0
 # =====================================================================
 
 # --- Configuration ---
 # Centralize the script name here. This is the Single Source of Truth.
 PYTHON_EXEC := $(shell command -v python3 || command -v python)
-ASSEMBLER_SCRIPT = scripts/assemble_prompt_v3.3.py
 PEL_TOOLKIT_SCRIPT = scripts/pel_toolkit.py
 BUILD_DIR = build
 TIMESTAMP := $(shell date +%Y%m%d-%H%M%S)
@@ -16,13 +16,18 @@ YELLOW = \033[1;33m
 BLUE = \033[0;34m
 NC = \033[0m
 
+# --- Target Declarations ---
 # Default target when just running 'make'
 .DEFAULT_GOAL := help
+
+# Consolidated .PHONY declaration is the Single Source of Truth for all non-file targets.
+.PHONY: help generate-prompt end-session generate-manifest \
+        generate-manifest-prompt generate-jules-task review-report \
+        debug-failed-run clean
 
 # =====================================================================
 # HELP AND DOCUMENTATION
 # =====================================================================
-.PHONY: help
 help:
 	@echo "$(BLUE)================================================================$(NC)"
 	@echo "   Prompt Engineering Library (PEL) - Automation Tool"
@@ -45,13 +50,10 @@ help:
 	@echo "  make clean                             - Cleans all generated build artifacts."
 	@echo ""
 
-
 # =====================================================================
-# PROMPT GENERATION & WORKFLOWS
+# CORE WORKFLOWS
 # =====================================================================
-.PHONY: generate-prompt
 generate-prompt:
-	@# FIX: The @ is moved outside the chained command block for robustness.
 	@( \
 		if [ -z "$(INSTANCE)" ]; then \
 			echo "ERROR: Please specify the instance file."; \
@@ -65,14 +67,12 @@ generate-prompt:
 		$(PYTHON_EXEC) $(PEL_TOOLKIT_SCRIPT) $(INSTANCE) > $${OUTPUT_FILE}; \
 	)
 
-.PHONY: end-session
 end-session:
 	@if [ -z "$(LOG)" ]; then \
 		echo "ERROR: Please specify the session log file."; \
 		exit 1; \
 	fi
 	@echo "Synthesizing session log: $(LOG)"
-	@# FIX: Add the @ prefix to the entire command block to silence it.
 	@( \
 		mkdir -p $(BUILD_DIR); \
 		SYNTH_INSTANCE_FILE=$(BUILD_DIR)/synthesize-session-$(TIMESTAMP).instance.md; \
@@ -93,14 +93,14 @@ end-session:
 		echo "$(YELLOW)-----------------------------------------------------------------------$(NC)"; \
 	)
 
-.PHONY: generate-manifest
 generate-manifest:
 	@echo "Generating PEL_AGENTS.md manifest directly from source files..."
-	@# This is now a single, deterministic, and fast command.
 	@$(PYTHON_EXEC) $(PEL_TOOLKIT_SCRIPT) --generate-manifest > PEL_AGENTS.md
 	@echo "$(GREEN)PEL_AGENTS.md has been successfully regenerated.$(NC)"
 
-.PHONY: generate-manifest-prompt
+# =====================================================================
+# JULES INTEGRATION WORKFLOWS
+# =====================================================================
 generate-manifest-prompt:
 	@if [ -z "$(INSTANCE)" ]; then \
 		echo "ERROR: Please specify the instance file for the JIA-1 persona."; \
@@ -109,8 +109,32 @@ generate-manifest-prompt:
 	@echo "Generating prompt to create a Jules Manifest..."
 	@$(MAKE) generate-prompt INSTANCE=$(INSTANCE)
 
-	
-.PHONY: debug-failed-run
+generate-jules-task:
+	@if [ -z "$(INSTANCE)" ]; then \
+		echo "ERROR: Please specify the instance file for the JTA-1 persona."; \
+		echo "Usage: make generate-jules-task INSTANCE=path/to/create-task.instance.md"; \
+		exit 1; \
+	fi
+	@echo "Generating a guided task prompt for Jules..."
+	@$(MAKE) generate-prompt INSTANCE=$(INSTANCE)
+
+review-report:
+	@if [ -z "$(REPORT)" ]; then \
+		echo "ERROR: Please specify the JULES_REPORT.json file."; \
+		echo "Usage: make review-report REPORT=path/to/JULES_REPORT.json"; \
+		exit 1; \
+	fi
+	@echo "Generating prompt to review Jules report: $(REPORT)"
+	@# This dynamically creates the instance file for the JRI-1 persona
+	@REVIEW_INSTANCE_FILE=$(BUILD_DIR)/review-report.instance.md; \
+	echo "---" > $${REVIEW_INSTANCE_FILE}; \
+	echo "domain: prompt_engineering" >> $${REVIEW_INSTANCE_FILE}; \
+	echo "persona_alias: jri-1" >> $${REVIEW_INSTANCE_FILE}; \
+	echo "---" >> $${REVIEW_INSTANCE_FILE}; \
+	echo "<Mandate><Inject src=\"$(REPORT)\" /></Mandate>" >> $${REVIEW_INSTANCE_FILE}; \
+	\
+	@$(MAKE) generate-prompt INSTANCE=$${REVIEW_INSTANCE_FILE}
+
 debug-failed-run:
 	@if [ -z "$(REPORT)" ]; then \
 		echo "ERROR: Please specify the failed JULES_REPORT.json file."; \
@@ -135,46 +159,8 @@ debug-failed-run:
 	@$(MAKE) generate-prompt INSTANCE=$${DEBUG_INSTANCE_FILE}
 
 # =====================================================================
-# JULES INTEGRATION WORKFLOWS
-# =====================================================================
-.PHONY: help generate-prompt end-session generate-manifest \
-        generate-jules-task review-report debug-failed-run clean
-		
-.PHONY: generate-jules-task
-generate-jules-task:
-	@if [ -z "$(INSTANCE)" ]; then \
-		echo "ERROR: Please specify the instance file for the JTA-1 persona."; \
-		echo "Usage: make generate-jules-task INSTANCE=path/to/create-task.instance.md"; \
-		exit 1; \
-	fi
-	@echo "Generating a guided task prompt for Jules..."
-	@$(MAKE) generate-prompt INSTANCE=$(INSTANCE)
-	
-.PHONY: review-report
-review-report:
-	@if [ -z "$(REPORT)" ]; then \
-		echo "ERROR: Please specify the JULES_REPORT.json file."; \
-		echo "Usage: make review-report REPORT=path/to/JULES_REPORT.json"; \
-		exit 1; \
-	fi
-	@echo "Generating prompt to review Jules report: $(REPORT)"
-	@# This dynamically creates the instance file for the JRI-1 persona
-	@REVIEW_INSTANCE_FILE=$(BUILD_DIR)/review-report.instance.md; \
-	echo "---" > $${REVIEW_INSTANCE_FILE}; \
-	echo "domain: prompt_engineering" >> $${REVIEW_INSTANCE_FILE}; \
-	echo "persona_alias: jri-1" >> $${REVIEW_INSTANCE_FILE}; \
-	echo "---" >> $${REVIEW_INSTANCE_FILE}; \
-	echo "<Mandate><Inject src=\"$(REPORT)\" /></Mandate>" >> $${REVIEW_INSTANCE_FILE}; \
-	\
-	@$(MAKE) generate-prompt INSTANCE=$${REVIEW_INSTANCE_FILE}
-
-
-
-
-# =====================================================================
 # UTILITIES
 # =====================================================================
-.PHONY: clean
 clean:
 	@echo "Cleaning generated artifacts from $(BUILD_DIR)/"
 	@rm -rf $(BUILD_DIR)
