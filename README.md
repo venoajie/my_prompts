@@ -148,6 +148,11 @@ Use an instance prompt that injects the small, structured session_synthesis_01.j
 
 For complex tasks, you can delegate the final implementation to an external agent like Jules. This workflow has two modes, depending on your task.
 
+> **Safety Notice: Commit-Locked Execution**
+> To ensure safety and predictability, all interactions with Jules are now automatically locked to the specific version of your code at the moment you generate the prompt. The system injects the current Git commit hash, and Jules is instructed to check out this exact version before starting work. This prevents race conditions and ensures Jules always operates on the context you intended.
+
+This workflow has two modes, depending on your task.
+
 #### Mode A: Executing Pre-Generated Code (Manifest-based)
 
 Use this mode when you have already used a PEL persona (like `CSA-1`) to generate and approve a set of code artifacts.

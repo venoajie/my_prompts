@@ -48,20 +48,22 @@ This library is governed by the following non-negotiable principles:
 -   **Prompt Assembly (Two-Stage):** The `pel_toolkit.py` script executes a two-stage process: Alignment Check and Final Assembly.
 -   **Session Handoff & Synthesis:** A formal handoff process using the `SESSION-SYNTHESIZER` persona to distill raw logs into a compact JSON artifact.
 -   **Agent Manifest Generation:** The `PEL_AGENTS.md` file is generated via the automated `make generate-manifest` target.
--   **Delegated Execution (Jules Integration):** A "Brain-to-Hands" workflow with the Jules agent, operating in two distinct modes (Manifest-Based and Guided Task).
 -   **Persona Schema Validation (CI/CD):** To ensure robustness, all `.persona.md` files **MUST** be validated as part of the CI/CD pipeline. This check ensures that the YAML frontmatter is well-formed, contains all required keys, and that `expected_artifacts` declarations are specific and non-generic.
 -   **PEL Audit Loop:** The `PELA-1` persona is used to perform a periodic, holistic audit of the library itself, using this blueprint as its primary source of truth.
--   **Delegated Execution (Jules Integration):** The PEL supports a "Brain-to-Hands" workflow with the external execution agent, Jules. This integration operates in two distinct, mutually exclusive modes to ensure maximum effectiveness and safety. The choice of mode is critical and depends on the nature of the task.
-    1.  **Mode A: Manifest-Based Execution (Deterministic Tasks):** For pre-approved, deterministic changes where the implementation path is clear. This is the **preferred mode for safety and reliability.**
-        -   **Trigger:** The human operator uses the `JIA-1` (Jules Integration Architect) persona.
-        -   **Input:** An implementation plan or a set of generated code artifacts.
-        -   **Output:** A `JULES_MANIFEST.json` file. This is a machine-readable instruction set, conforming to a strict schema, that directs Jules's actions precisely. It includes operations like `CREATE_FILE`, `UPDATE_FILE`, and can be run in `dry_run` mode for validation.
-        -   **Handoff:** The manifest is passed to Jules for execution.
-    2.  **Mode B: Guided Task Generation (Exploratory Tasks):** For generative, creative, or exploratory tasks where the exact implementation path is unknown.
-        -   **Trigger:** The human operator uses the `JTA-1` (Jules Task Architect) persona.
-        -   **Input:** A high-level goal and key context files.
-        -   **Output:** A guided, natural-language prompt that explicitly follows the "Persona, Context, Task" (PCT) framework required by Jules.
-        -   **Handoff:** The guided prompt is used by the human operator to interact with Jules.
+
+-   **Delegated Execution (Jules Integration):** The PEL supports a "Brain-to-Hands" workflow with the external execution agent, Jules. This integration is governed by the following critical principles:
+    -   **Principle: Commit-Locked Execution:** To ensure determinism and context integrity, all interactions with Jules **MUST** be locked to a specific Git commit hash. The assembly script is responsible for automatically injecting the current `HEAD` commit hash into the prompt context. The Jules-facing personas (`JIA-1`, `JTA-1`) are responsible for instructing Jules to `git checkout` this specific hash before performing any operations. This eliminates the risk of operating on a stale or incorrect version of the codebase.
+    -   **Principle: Dual-Mode Interaction:** The integration operates in two distinct, mutually exclusive modes to ensure maximum effectiveness and safety.
+
+    1.  **Mode A: Manifest-Based Execution (Deterministic Tasks):** For pre-approved, deterministic changes. This is the **preferred mode for safety and reliability.**
+        -   **Trigger:** The human operator uses the `JIA-1` persona.
+        -   **Input:** An implementation plan, generated code artifacts, and the current commit hash (injected by the toolchain).
+        -   **Output:** A `JULES_MANIFEST.json` file that includes the `commit_hash`, and a guided prompt instructing Jules to check out that hash before executing the manifest.
+
+    2.  **Mode B: Guided Task Generation (Exploratory Tasks):** For generative or exploratory tasks.
+        -   **Trigger:** The human operator uses the `JTA-1` persona.
+        -   **Input:** A high-level goal, key context files, and the current commit hash (injected by the toolchain).
+        -   **Output:** A guided, natural-language prompt that instructs Jules to first check out the specified commit hash before proceeding with the task.
 -   **Jules Self-Correction Loop:** To enhance resilience, the PEL formalizes a closed-loop error correction workflow.
     1.  **Failure:** Jules encounters an error (e.g., a failing test) during manifest execution and generates a `JULES_REPORT.json`.
     2.  **Ingestion & Diagnosis:** The operator uses `make debug-failed-run` to trigger the `DA-1` (Debugging Analyst) persona, which ingests the `JULES_REPORT.json` and original source files to diagnose the root cause.

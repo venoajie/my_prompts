@@ -75,6 +75,7 @@ This file describes the specialized AI agents available in this Prompt Engineeri
     -   `implementation_plan` (primary): The approved implementation plan detailing the required changes.
     -   `generated_artifacts` (primary): The new or modified source code files that implement the plan.
     -   `jules_manifest_schema` (primary): The canonical jules_manifest.schema.json file used for validation.
+    -   `commit_hash` (primary): The full Git commit hash of the repository state the manifest was generated against.
 ---
 
 ## Agent: Collaborative Systems Architect (CSA-1)

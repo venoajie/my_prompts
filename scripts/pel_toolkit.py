@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Tuple, Optional, List, Dict
 import json
 import re
+import subprocess
 
 import yaml
 from bs4 import BeautifulSoup, CData
@@ -274,6 +275,17 @@ def assemble_full_prompt(
     instance_meta, instance_content_block = load_artifact_with_frontmatter(instance_path)
     domain = instance_meta["domain"]
 
+    try:
+        commit_hash = subprocess.check_output(
+            ['git', 'rev-parse', 'HEAD'],
+            cwd=repo_root,
+            text=True
+        ).strip()
+        system_context = f"<SystemContext><CommitHash>{commit_hash}</CommitHash></SystemContext>"
+        instance_content_block = system_context + "\n" + instance_content_block
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        print("Warning: Could not determine git commit hash. Proceeding without it.", file=sys.stderr)
+    
     target_repo_rel_path = instance_meta.get("target_repo_path")
     if target_repo_rel_path:
         injection_base_path = (repo_root / target_repo_rel_path).resolve()
