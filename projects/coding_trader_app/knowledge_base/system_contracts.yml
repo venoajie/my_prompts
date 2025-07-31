@@ -1,0 +1,177 @@
+
+# /docs/system_contracts.yml
+# Version: 1.0
+# Description: This file is the canonical, machine-readable data dictionary for "My Trading App".
+# It defines the schema and purpose of all major data contracts used in the system.
+
+contracts:
+  - name: Market Data Stream
+    key: stream:market_data
+    type: Redis Stream
+    description: "The central, real-time firehose for all canonical public trade data from all connected exchanges. Messages are added by the `receiver` and consumed by the `distributor` and `analyzer`."
+    schema:
+      - field: exchange
+        type: string
+        description: "The exchange the trade originated from (e.g., 'deribit', 'binance_spot')."
+      - field: instrument_name
+        type: string
+        description: "The canonical name of the instrument being traded (e.g., 'BTC-PERPETUAL')."
+      - field: market_type
+        type: string
+        description: "The type of market (e.g., 'spot', 'um', 'cm')."
+      - field: trade_id
+        type: integer
+        description: "The unique identifier for the trade from the exchange."
+      - field: price
+        type: numeric
+        description: "The price at which the trade was executed."
+      - field: quantity
+        type: numeric
+        description: "The quantity of the asset that was traded."
+      - field: is_buyer_maker
+        type: boolean
+        description: "True if the buyer was the market maker, False otherwise."
+      - field: was_best_price_match
+        type: boolean
+        description: "Indicates if the trade occurred at the best available price."
+      - field: trade_timestamp
+        type: integer
+        description: "The Unix timestamp (milliseconds) of when the trade occurred."
+
+  - name: OHLC Backfill Queue
+    key: queue:ohlc_work
+    type: Redis List (Queue)
+    description: "A work queue containing tasks for the `backfill` service to fetch historical OHLC data. The `janitor` service populates this queue during its bootstrap sequence."
+    schema:
+      - field: exchange
+        type: string
+        description: "The exchange to fetch data from."
+      - field: instrument_name
+        type: string
+        description: "The instrument to fetch OHLC data for."
+      - field: resolution
+        type: string
+        description: "The time resolution for the OHLC data (e.g., '1', '60', '1D')."
+      - field: start_date
+        type: string
+        description: "The start date for the backfill range (ISO 8601 format)."
+      - field: end_date
+        type: string
+        description: "The end date for the backfill range (ISO 8601 format)."
+
+  - name: System Event Channel
+    key: channel:system_events
+    type: Redis Pub/Sub
+    description: "A broadcast channel for inter-service communication. Used by the `analyzer` to publish events (e.g., volume anomalies) that the `executor` can subscribe to."
+    schema:
+      - field: event_type
+        type: string
+        description: "The type of the event (e.g., 'VOLUME_ANOMALY')."
+      - field: instrument_name
+        type: string
+        description: "The instrument the event relates to."
+      - field: payload
+        type: json
+        description: "A JSON object containing event-specific data."
+        example: "{'observed_volume': 5000000, 'average_volume': 1200000, 'timestamp': 1678886400}"
+
+  - name: System State
+    key: system:state
+    type: Redis Hash
+    description: "A detailed hash storing the global system state, including the reason for the state and a timestamp. The `system:state:simple` key provides a quick string-only view of the status."
+    schema:
+      - field: status
+        type: string
+        description: "The current operational state (e.g., 'HEALTHY', 'LOCKED', 'BOOTSTRAPPING')."
+      - field: reason
+        type: string
+        description: "A human-readable reason for the current state."
+      - field: timestamp
+        type: float
+        description: "The Unix timestamp when the state was set."
+
+  - name: Per-Exchange System State
+    key: "system:state:<exchange>"
+    type: Redis String
+    description: "A simple string key that governs the operational mode for a specific exchange (e.g., 'system:state:deribit')."
+    schema:
+      - field: state
+        type: string
+        description: "The state of the exchange connection (e.g., 'BOOTSTRAPPING', 'RECONCILING', 'HEALTHY', 'LOCKED')."
+
+  - name: Dynamic Subscription Control Channel
+    key: "control:<market_id>:subscriptions"
+    type: Redis Pub/Sub
+    description: "A control channel for dynamically managing the `receiver`'s WebSocket subscriptions without requiring a service restart."
+    schema:
+      - field: action
+        type: string
+        description: "The action to perform ('subscribe' or 'unsubscribe')."
+      - field: instrument_name
+        type: string
+        description: "The canonical instrument name to subscribe to or unsubscribe from."
+
+  - name: Ticker Snapshot
+    key: "ticker:<instrument_name>"
+    type: Redis Hash
+    description: "Stores the latest ticker data for a single instrument for fast, low-latency access by services like the `executor`."
+    schema:
+      - field: payload
+        type: json
+        description: "A JSON blob containing the full ticker object, mirroring the schema of the `tickers` PostgreSQL table."
+
+  - name: Canonical Instrument Model
+    key: instruments
+    type: PostgreSQL Table
+    description: "The single source of truth for all tradable instruments, their properties, and metadata. Populated by the `janitor` service."
+    schema:
+      - field: exchange
+        type: TEXT
+      - field: instrument_name
+        type: TEXT
+      - field: market_type
+        type: TEXT
+      - field: instrument_kind
+        type: TEXT
+      - field: base_asset
+        type: TEXT
+      - field: quote_asset
+        type: TEXT
+      - field: settlement_asset
+        type: TEXT
+      - field: settlement_period
+        type: TEXT
+      - field: tick_size
+        type: NUMERIC
+      - field: contract_size
+        type: NUMERIC
+      - field: expiration_timestamp
+        type: TIMESTAMPTZ
+      - field: data
+        type: JSONB
+
+  - name: OHLC Data
+    key: ohlc
+    type: PostgreSQL Table
+    description: "Stores historical and real-time Open, High, Low, Close, and Volume data for all instruments at various resolutions."
+    schema:
+      - field: exchange
+        type: TEXT
+      - field: instrument_name
+        type: TEXT
+      - field: resolution
+        type: INTERVAL
+      - field: tick
+        type: TIMESTAMPTZ
+      - field: open
+        type: NUMERIC
+      - field: high
+        type: NUMERIC
+      - field: low
+        type: NUMERIC
+      - field: close
+        type: NUMERIC
+      - field: volume
+        type: NUMERIC
+      - field: open_interest
+        type: NUMERIC
