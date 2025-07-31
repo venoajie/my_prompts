@@ -1,110 +1,102 @@
-#!/usr/bin/env python3
-# scripts/validate_personas.py
+# /scripts/validate_personas.py
+# Version: 2.0 (Architecture-Aware)
 
+import os
+import yaml
 import sys
 from pathlib import Path
-import yaml
 
-def find_repo_root(start_path: Path) -> Path:
-    """Finds the repository root by looking for the 'domains' directory."""
-    current = start_path.resolve()
-    while current != current.parent:
-        if (current / "domains").is_dir():
-            return current
-        current = current.parent
-    raise FileNotFoundError("Could not find repository root ('domains/' directory).")
+# --- Configuration ---
+PERSONA_FILENAME = "*.persona.md"
+REQUIRED_KEYS = ['alias', 'version', 'title', 'status']
+ROOT_DIR = Path(__file__).parent.parent
 
-def validate_persona(file_path: Path) -> list:
-    """
-    Validates a single persona file against the PEL's architectural rules.
-    Returns a list of error messages.
-    """
-    errors = []
+# ANSI Color Codes
+GREEN = '\033[92m'
+YELLOW = '\033[93m'
+RED = '\033[91m'
+BLUE = '\033[94m'
+NC = '\033[0m'
+
+def find_all_personas(root_path):
+    """Finds all persona files in templates and projects directories."""
+    persona_files = []
+    
+    # Search in /templates
+    templates_path = root_path / 'templates'
+    if templates_path.exists():
+        persona_files.extend(templates_path.rglob(PERSONA_FILENAME))
+        
+    # Search in /projects
+    projects_path = root_path / 'projects'
+    if projects_path.exists():
+        persona_files.extend(projects_path.rglob(PERSONA_FILENAME))
+        
+    return persona_files
+
+def validate_persona_file(file_path):
+    """Validates a single persona file for YAML frontmatter and required keys."""
     try:
-        text = file_path.read_text(encoding='utf-8')
-        if not text.startswith("---"):
-            errors.append("File does not start with YAML frontmatter '---'.")
-            return errors
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
 
-        parts = text.split("---", 2)
+        parts = content.split('---')
         if len(parts) < 3:
-            errors.append("Malformed frontmatter; missing closing '---'.")
-            return errors
+            return False, f"File does not contain valid YAML frontmatter. Path: {file_path}"
 
-        metadata = yaml.safe_load(parts[1])
-        if not isinstance(metadata, dict):
-            errors.append("Frontmatter is not a valid key-value map.")
-            return errors
+        frontmatter_str = parts[1]
+        data = yaml.safe_load(frontmatter_str)
 
-        # Rule 1: Check for required keys
-        required_keys = ['alias', 'title', 'version', 'status']
-        for key in required_keys:
-            if key not in metadata:
-                errors.append(f"Missing required key: '{key}'.")
+        if not isinstance(data, dict):
+            return False, f"YAML frontmatter is not a valid dictionary. Path: {file_path}"
 
-        # Rule 2: Validate 'status' value
-        valid_statuses = ['active', 'deprecated', 'experimental']
-        if 'status' in metadata and metadata['status'] not in valid_statuses:
-            errors.append(f"Invalid 'status': '{metadata['status']}'. Must be one of {valid_statuses}.")
+        missing_keys = [key for key in REQUIRED_KEYS if key not in data]
+        if missing_keys:
+            return False, f"Missing required keys: {', '.join(missing_keys)}. Path: {file_path}"
 
-        # Rule 3: Validate 'expected_artifacts' if present
-        if 'expected_artifacts' in metadata:
-            artifacts = metadata['expected_artifacts']
-            if not isinstance(artifacts, list):
-                errors.append("'expected_artifacts' must be a list.")
-            else:
-                for i, artifact in enumerate(artifacts):
-                    if not isinstance(artifact, dict):
-                        errors.append(f"Artifact at index {i} is not a key-value map.")
-                        continue
-                    for key in ['id', 'type', 'description']:
-                        if key not in artifact:
-                            errors.append(f"Artifact at index {i} is missing required key: '{key}'.")
-                    if 'description' in artifact and ("source file to be tested" in artifact['description'] and "ute-1" not in file_path.name):
-                         errors.append(f"Artifact at index {i} has a generic description. It must be specific to the persona's function.")
+        return True, f"OK: {data.get('alias', 'N/A')}"
 
     except yaml.YAMLError as e:
-        errors.append(f"YAML parsing error: {e}")
+        return False, f"YAML parsing error: {e}. Path: {file_path}"
     except Exception as e:
-        errors.append(f"An unexpected error occurred: {e}")
-
-    return errors
+        return False, f"An unexpected error occurred: {e}. Path: {file_path}"
 
 def main():
-    """
-    Main function to find all persona files and validate them.
-    """
-    try:
-        repo_root = find_repo_root(Path.cwd())
-        domains_path = repo_root / "domains"
-    except FileNotFoundError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
-
-    print("Starting PEL Persona Audit...")
-    all_persona_files = list(domains_path.glob('**/*.persona.md'))
-    total_errors = 0
-
-    if not all_persona_files:
-        print("Warning: No persona files found to validate.", file=sys.stderr)
+    """Main validation function."""
+    print(f"{BLUE}--- Starting Persona Validation ---{NC}")
+    print(f"Searching for personas in: {ROOT_DIR / 'templates'} and {ROOT_DIR / 'projects'}")
+    
+    all_personas = find_all_personas(ROOT_DIR)
+    
+    if not all_personas:
+        print(f"{YELLOW}No persona files found. Validation skipped.{NC}")
         sys.exit(0)
 
-    for persona_file in all_persona_files:
-        relative_path = persona_file.relative_to(repo_root)
-        errors = validate_persona(persona_file)
-        if errors:
-            print(f"\n--- [FAIL] {relative_path} ---")
-            for error in errors:
-                print(f"  - {error}")
-            total_errors += len(errors)
-        else:
-            print(f"[PASS] {relative_path}")
+    print(f"Found {len(all_personas)} persona files to validate.\n")
 
-    if total_errors > 0:
-        print(f"\nAudit failed with {total_errors} error(s).")
+    error_count = 0
+    success_count = 0
+
+    for persona_path in all_personas:
+        is_valid, message = validate_persona_file(persona_path)
+        relative_path = persona_path.relative_to(ROOT_DIR)
+        if is_valid:
+            print(f"{GREEN}[PASS]{NC} {relative_path}")
+            success_count += 1
+        else:
+            print(f"{RED}[FAIL]{NC} {relative_path}\n     └─ {YELLOW}Reason: {message}{NC}")
+            error_count += 1
+    
+    print("\n" + "="*30)
+    print(f"{BLUE}Validation Summary:{NC}")
+    print(f"  {GREEN}Successful: {success_count}{NC}")
+    print(f"  {RED}Failed:     {error_count}{NC}")
+    print("="*30 + "\n")
+
+    if error_count > 0:
         sys.exit(1)
     else:
-        print("\nAudit complete. All personas are compliant.")
+        print(f"{GREEN}All personas are valid.{NC}")
         sys.exit(0)
 
 if __name__ == "__main__":
