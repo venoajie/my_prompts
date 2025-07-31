@@ -1,5 +1,5 @@
 # /scripts/pel_toolkit.py
-# Version: 2.1 (Pathing Fix)
+# Version: 2.3 (Mixin-Aware)
 
 import os
 import sys
@@ -39,7 +39,9 @@ def get_template_path(project_root):
     return ROOT_DIR / TEMPLATES_DIR_NAME / template_name
 
 def find_persona_file(persona_alias, project_root, template_path):
-    """Searches for a persona file in the project and then the template directory."""
+    """Searches for a persona or mixin file in the project and then the template directory."""
+    search_alias = persona_alias.lower()
+    
     search_paths = []
     if project_root:
         search_paths.append(project_root / PERSONAS_DIR_NAME)
@@ -48,8 +50,12 @@ def find_persona_file(persona_alias, project_root, template_path):
 
     for path in search_paths:
         if path.exists():
-            # rglob will search in base/, specialized/, etc.
-            found_files = list(path.rglob(f"**/{persona_alias}.persona.md"))
+            # --- CRITICAL FIX ---
+            # Search for both .persona.md and .mixin.md files.
+            found_files = list(path.rglob(f"**/{search_alias}.persona.md"))
+            if not found_files:
+                found_files = list(path.rglob(f"**/{search_alias}.mixin.md"))
+            
             if found_files:
                 return found_files[0] # Return the first match
     return None
@@ -76,14 +82,12 @@ def assemble_persona_content(persona_path, project_root, template_path):
             raise FileNotFoundError(f"Inherited persona '{inherits_from}' not found for '{persona_path.name}'.")
         
         parent_content = assemble_persona_content(parent_persona_path, project_root, template_path)
-        # Prepend parent content to the current persona's body
         return parent_content + "\n" + body.strip()
     
     return body.strip()
 
 def inject_file_content(mandate_body):
     """Finds <Inject> tags and replaces them with file content."""
-    # Regex to find <Inject src="path/to/file" />
     inject_pattern = re.compile(r'<Inject\s+src="([^"]+)"\s*/>')
     
     def replacer(match):
@@ -99,8 +103,6 @@ def inject_file_content(mandate_body):
 
 def main(instance_file_path):
     """Main assembly function."""
-    # --- CRITICAL FIX ---
-    # Convert the incoming path to an absolute path to ensure robust traversal.
     instance_path = Path(instance_file_path).resolve()
     
     if not instance_path.exists():
@@ -125,7 +127,6 @@ def main(instance_file_path):
         print("Error: 'persona_alias' not defined in instance frontmatter.", file=sys.stderr)
         sys.exit(1)
 
-    # Resolve paths
     project_root = find_project_root(instance_path)
     if not project_root:
         print(f"Error: Could not determine project root for instance file: {instance_path}", file=sys.stderr)
@@ -133,7 +134,6 @@ def main(instance_file_path):
         
     template_path = get_template_path(project_root)
 
-    # Find and assemble the persona
     persona_path = find_persona_file(persona_alias, project_root, template_path)
     if not persona_path:
         print(f"Error: Persona '{persona_alias}' not found in project '{project_root.name}' or its template.", file=sys.stderr)
@@ -141,11 +141,8 @@ def main(instance_file_path):
         
     full_persona_content = assemble_persona_content(persona_path, project_root, template_path)
 
-    # Inject file content into the mandate
     final_mandate = inject_file_content(mandate_body)
 
-    # Assemble the final XML prompt
-    # This is a simplified structure. Your actual kernel/prompt structure may vary.
     final_prompt = f"""<SystemPrompt>
     <PersonaLibrary>
 {full_persona_content}
