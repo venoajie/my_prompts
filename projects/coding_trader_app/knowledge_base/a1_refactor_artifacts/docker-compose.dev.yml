@@ -1,0 +1,5 @@
+# Development-specific overrides
+# ... (paste the full content of docker-compose.dev.yml here) ...
+volumes:
+  redis-data-dev:
+  pgdata-dev:

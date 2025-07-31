@@ -1,0 +1,3 @@
+# Production-specific overrides
+# ... (paste the full content of docker-compose.prod.yml here) ...
+  device: /data/volumes/pgdata

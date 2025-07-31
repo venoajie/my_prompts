@@ -1,0 +1,3 @@
+#!/bin/bash
+# ... (paste the full content of optimize-system.sh here) ...
+echo "Optimizations applied and set to be persistent across reboots."

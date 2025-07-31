@@ -1,0 +1,5 @@
+# Base docker-compose.yml - Contains common service definitions
+# ... (paste the full content of the base docker-compose.yml here) ...
+networks:
+  trading-net:
+    driver: bridge
