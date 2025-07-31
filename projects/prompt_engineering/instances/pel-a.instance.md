@@ -11,11 +11,7 @@ Conduct a strategic architectural review of the provided artifacts. Your analysi
 <Inject src="Makefile" />
 <Inject src="scripts/pel_toolkit.py" />
 <Inject src="scripts/validate_personas.py" />
-<Inject src="engine/v1/system_kernel.xml" />
-<Inject src="domains/prompt_engineering/instances/pel-a.instance.md"/>
-<Inject src="domains/prompt_engineering/knowledge_base/current_structure.txt"/>
-<Inject src="domains/coding_trades_app/personas/specialized-->various specialized personas" />
-<Inject src="domains/shared/personas/-->various base personas" />
+<Inject src="engine/v1/system_kernel.xml" />>
 </SECTION>
 
 Present your findings in a formal report with the following sections:

@@ -143,3 +143,21 @@ Docker Compose enforces a strict startup order. The `/janitor` service runs firs
 ## 7.1. Database Schema Management
 - **Current State:** The database schema is defined and initialized by the `/init.sql` script. This script is executed by the Postgres container only on first run with an empty data volume. This approach is suitable for development but is not viable for production.
 - **Future Requirement:** For production deployment, a formal database migration tool (e.g., Alembic, Flyway, or a custom versioned script runner) must be implemented. This will allow for applying incremental, non-destructive schema changes to a live database without data loss. This is a required work item before the system can be considered production-ready.
+
+## 4.0 Jules Integration Strategy
+
+This project utilizes the Jules agent for delegated execution tasks, governed by the principles in the root `PEL_BLUEPRINT.md`. The integration is governed by the following critical principles:
+
+*   **Principle: Commit-Locked Execution:** To ensure determinism, all interactions with Jules MUST be locked to a specific Git commit hash. The `pel_toolkit.py` script automatically gathers the current `HEAD` commit hash and injects it into a `<SystemContext>` block at the start of every prompt. The Jules-facing personas (`JIA-1`, `JTA-1`) are responsible for parsing this context and instructing Jules to `git checkout` this specific hash before performing any operations.
+
+*   **Principle: Dual-Mode Interaction:** The integration operates in two distinct, mutually exclusive modes to ensure maximum effectiveness and safety.
+
+    1.  **Mode A: Manifest-Based Execution (Deterministic Tasks):** For pre-approved, deterministic changes. This is the **preferred mode for safety and reliability.**
+        *   **Trigger:** The human operator uses the `JIA-1` persona.
+        *   **Input:** An implementation plan, generated code artifacts, and the current commit hash (injected by the toolchain).
+        *   **Output:** A `JULES_MANIFEST.json` file that includes the `commit_hash`, and a guided prompt instructing Jules to check out that hash before executing the manifest.
+
+    2.  **Mode B: Guided Task Generation (Exploratory Tasks):** For generative or exploratory tasks.
+        *   **Trigger:** The human operator uses the `JTA-1` persona.
+        *   **Input:** A high-level goal, key context files, and the current commit hash (injected by the toolchain).
+        *   **Output:** A guided, natural-language prompt that instructs Jules to first check out the specified commit hash before proceeding with the task.
