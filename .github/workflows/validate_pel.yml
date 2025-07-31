@@ -27,4 +27,4 @@ jobs:
           pip install PyYAML
 
       - name: Run Persona Validator
-        run: python scripts/validate_personas.py
+        run: make validate

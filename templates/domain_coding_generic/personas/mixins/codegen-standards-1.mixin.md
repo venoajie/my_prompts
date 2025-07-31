@@ -26,5 +26,3 @@ status: active
         <Rule id="NoMagicValues">Hardcoded, business-logic-specific strings or numbers must be extracted into named constants or a proposed configuration structure.</Rule>
     </Directive_CodeAsConfig>
 </directives>
-````
-

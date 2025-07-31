@@ -1,3 +1,5 @@
+# projects\coding_trader_app\DOMAIN_BLUEPRINT.md
+
 # PEL_BLUEPRINT.md
 # Prompt Engineering Library (PEL) - Architectural Blueprint
 
