@@ -1,5 +1,5 @@
 # /scripts/pel_toolkit.py
-# Version: 2.0 (Architecture-Aware)
+# Version: 2.1 (Pathing Fix)
 
 import os
 import sys
@@ -99,7 +99,10 @@ def inject_file_content(mandate_body):
 
 def main(instance_file_path):
     """Main assembly function."""
-    instance_path = Path(instance_file_path)
+    # --- CRITICAL FIX ---
+    # Convert the incoming path to an absolute path to ensure robust traversal.
+    instance_path = Path(instance_file_path).resolve()
+    
     if not instance_path.exists():
         print(f"Error: Instance file not found at {instance_path}", file=sys.stderr)
         sys.exit(1)
