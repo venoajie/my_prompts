@@ -1,10 +1,19 @@
-# domains\prompt_engineering\knowledge_base\current_structure.txt
-# as of 30 Jul 25, 10:11 PM
+# projects\prompt_engineering\knowledge_base\current_structure.txt
+# as of 31 Jul 25, 14:10 PM
 .
 ├── build
 │   └── generate-manifest.prompt.xml
-├── domains
+├── engine
+│   └── v1
+│       └── system_kernel.xml
+├── Here is the implementation plan for refa.txt
+├── Makefile
+├── PEL_AGENTS.md
+├── PEL_REFACTOR_PLAN_V1.md
+├── problem_statements.md
+├── projects
 │   ├── coding_trader_app
+│   │   ├── DOMAIN_BLUEPRINT.md
 │   │   ├── instances
 │   │   │   ├── 2024-05-23_validate-system-logic-tp01
 │   │   │   │   ├── 00_mandate.md
@@ -12,6 +21,7 @@
 │   │   │   │   ├── 02_response.md
 │   │   │   │   └── 03_synthesis.json
 │   │   │   ├── apply-a1-optimizations.instance.md
+│   │   │   ├── bpa-1-test.instance.md
 │   │   │   ├── DESCRIPTING_FILE.md
 │   │   │   ├── END_OF_SESSION_SYNTHESIS
 │   │   │   ├── generate-a1-manifest.instance.md
@@ -31,6 +41,7 @@
 │   │   │   ├── csa-1_a1-optimization-plan_v1.md
 │   │   │   ├── session_log_01.md
 │   │   │   └── session_synthesis_01.json
+│   │   ├── Makefile
 │   │   ├── personas
 │   │   │   ├── deprecated
 │   │   │   │   ├── amd-1.persona.md
@@ -64,58 +75,55 @@
 │   │       ├── refactor-and-document.workflow.md
 │   │       └── _template.workflow.md
 │   ├── language_learning
+│   │   ├── DOMAIN_BLUEPRINT.md
+│   │   ├── Makefile
 │   │   └── personas
-│   │       └── persona_english_partner.md
-│   ├── prompt_engineering
-│   │   ├── instances
-│   │   │   ├── apply-jules-doc-feedback.instance.md
-│   │   │   ├── refactor-my-pel.instance.md
-│   │   │   ├── resume-architect-session.instance.md
-│   │   │   └── synthesize-session.instance.md
-│   │   ├── knowledge_base
-│   │   │   ├── current_structure.txt
-│   │   │   ├── jules_manifest.schema.json
-│   │   │   ├── session_synthesis_01.json
-│   │   │   └── SPEC-JULES-INTEGRATION-V2.md
-│   │   └── personas
-│   │       ├── prompting
-│   │       │   ├── persona_gemini_analyst.md
-│   │       │   ├── persona_pel-architect_v1.0.md
-│   │       │   ├── persona_pel-architect_v2.0.md
-│   │       │   └── pra-1.persona.md
 │   │       └── specialized
-│   │           ├── alignment-checker.persona.md
-│   │           ├── pela-1.persona.md
-│   │           └── session-synthesizer.persona.md
-│   └── shared
+│   │           └── persona_english_partner.md
+│   └── prompt_engineering
+│       ├── DOMAIN_BLUEPRINT.md
+│       ├── instances
+│       │   ├── apply-jules-doc-feedback.instance.md
+│       │   ├── pel-a.instance.md
+│       │   ├── refactor-my-pel.instance.md
+│       │   ├── resume-architect-session.instance.md
+│       │   └── synthesize-session.instance.md
+│       ├── knowledge_base
+│       │   ├── current_structure.txt
+│       │   ├── jules_manifest.schema.json
+│       │   ├── session_synthesis_01.json
+│       │   └── SPEC-JULES-INTEGRATION-V2.md
+│       ├── Makefile
 │       └── personas
 │           ├── base
-│           │   ├── bcaa-1.persona.md
-│           │   └── btaa-1.persona.md
-│           └── mixins
-│               └── codegen-standards-1.mixin.md
-├── engine
-│   └── v1
-│       └── system_kernel.xml
-├── ideas
-│   ├── persona_CENDANA_EKSEKUTOR (CE-1).md
-│   ├── persona_original_improve_persona
-│   ├── persona_original_reduce_hallucinations.md
-│   └── _template_persona.md
-├── logs
-│   └── pel_architect_session_01.md
-├── Makefile
-├── PEL_AGENTS.md
-├── PEL_BLUEPRINT.md
+│           │   └── bcaa-1.persona.md
+│           ├── prompting
+│           │   ├── pel-a.persona_v4.0.md
+│           │   ├── persona_gemini_analyst.md
+│           │   ├── persona_pel-architect_v1.0.md
+│           │   ├── persona_pel-architect_v2.0.md
+│           │   └── pra-1.persona.md
+│           └── specialized
+│               ├── alignment-checker.persona.md
+│               ├── pela-1.persona.md
+│               └── session-synthesizer.persona.md
 ├── README.md
 ├── requirements.txt
 ├── scripts
 │   ├── kb_updater.py
+│   ├── pel-init.sh
 │   ├── pel_toolkit.py
-│   ├── run_prompt.py
-│   ├── synthesize_session.sh
 │   └── validate_personas.py
+├── templates
+│   └── domain_coding_generic
+│       ├── DOMAIN_BLUEPRINT.md.template
+│       ├── Makefile.template
+│       └── personas
+│           ├── base
+│           │   └── btaa-1.persona.md
+│           └── mixins
+│               └── codegen-standards-1.mixin.md
 └── workflows
     └── _template_workflow.md
 
-28 directories, 88 files
+29 directories, 95 files
