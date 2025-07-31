@@ -1,3 +1,60 @@
 # Production-specific overrides
-# ... (paste the full content of docker-compose.prod.yml here) ...
-  device: /data/volumes/pgdata
+
+services:
+  redis:
+    volumes:
+      - redis-data:/data
+      - ./config/redis.prod.conf:/etc/redis/redis.conf
+    command: redis-server /etc/redis/redis.conf
+    mem_limit: 800m
+    mem_reservation: 600m
+    restart: unless-stopped
+
+  postgres:
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./config/postgresql.prod.conf:/etc/postgresql/postgresql.conf
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    mem_limit: 800m
+    mem_reservation: 512m
+    restart: unless-stopped
+
+  analyzer:
+    mem_limit: 256m
+    mem_reservation: 128m
+    restart: unless-stopped
+
+  backfill:
+    mem_limit: 256m
+    mem_reservation: 128m
+    restart: unless-stopped
+
+  distributor:
+    mem_limit: 384m
+    mem_reservation: 256m
+    restart: unless-stopped
+
+  executor:
+    mem_limit: 256m
+    mem_reservation: 128m
+    restart: unless-stopped
+
+  receiver:
+    mem_limit: 384m
+    mem_reservation: 256m
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /data/volumes/redis-data
+  pgdata:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /data/volumes/pgdata

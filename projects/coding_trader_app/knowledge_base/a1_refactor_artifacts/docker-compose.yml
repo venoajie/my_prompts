@@ -1,5 +1,167 @@
 # Base docker-compose.yml - Contains common service definitions
-# ... (paste the full content of the base docker-compose.yml here) ...
+
+services:
+  redis:
+    image: redis/redis-stack:7.2.0-v7
+    profiles: ["full", "receiver", "distributor", "janitor", "executor", "backfill", "analyzer"]
+    networks: [trading-net]
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli PING | grep PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 20s
+      start_interval: 1s
+
+  postgres:
+    image: postgres:17
+    profiles: ["full", "receiver", "distributor", "janitor", "executor", "backfill", "analyzer"]
+    environment:
+      POSTGRES_USER: trading_app
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      POSTGRES_DB: trading
+    secrets: [db_password]
+    networks: [trading-net]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trading_app -d trading"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  janitor:
+    profiles: ["full", "janitor"]
+    build:
+      context: .
+      dockerfile: src/services/janitor/Dockerfile
+    env_file: ./.env
+    environment:
+      - SERVICE_NAME=janitor
+      - REDIS_URL=redis://redis:6379
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USER=trading_app
+      - POSTGRES_DB=trading
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db_password
+    secrets:
+      - db_password
+      - source: deribit_client_id
+        target: deribit_client_id
+      - source: deribit_client_secret
+        target: deribit_client_secret
+    depends_on:
+      redis: { condition: service_healthy }
+      postgres: { condition: service_healthy }
+    restart: on-failure
+    networks: [trading-net]
+
+  analyzer:
+    profiles: ["full", "analyzer"]
+    build:
+      context: .
+      dockerfile: src/services/analyzer/Dockerfile
+    env_file: ./.env
+    environment:
+      - SERVICE_NAME=analyzer
+      - REDIS_URL=redis://redis:6379
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USER=trading_app
+      - POSTGRES_DB=trading
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db_password
+    secrets: [db_password]
+    depends_on:
+      janitor: { condition: service_completed_successfully }
+    networks: [trading-net]
+
+  backfill:
+    profiles: ["full", "backfill"]
+    build:
+      context: .
+      dockerfile: src/services/backfill/Dockerfile
+    container_name: trading-app-backfill-1
+    env_file: ./.env
+    environment:
+      - SERVICE_NAME=backfill
+      - REDIS_URL=redis://redis:6379
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USER=trading_app
+      - POSTGRES_DB=trading
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db_password
+    secrets: [db_password]
+    depends_on:
+      janitor: { condition: service_completed_successfully }
+    networks: [trading-net]
+
+  distributor:
+    profiles: ["full", "distributor"]
+    build:
+      context: .
+      dockerfile: src/services/distributor/Dockerfile
+    env_file: ./.env
+    environment:
+      - SERVICE_NAME=distributor
+      - REDIS_URL=redis://redis:6379
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USER=trading_app
+      - POSTGRES_DB=trading
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db_password
+    secrets: [db_password]
+    depends_on:
+      janitor: { condition: service_completed_successfully }
+    networks: [trading-net]
+
+  executor:
+    profiles: ["full", "executor"]
+    build:
+      context: .
+      dockerfile: src/services/executor/Dockerfile
+    env_file: ./.env
+    environment:
+      - SERVICE_NAME=executor
+      - REDIS_URL=redis://redis:6379
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USER=trading_app
+      - POSTGRES_DB=trading
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db_password
+    secrets:
+      - db_password
+      - source: deribit_client_id
+        target: deribit_client_id
+      - source: deribit_client_secret
+        target: deribit_client_secret
+    depends_on:
+      janitor: { condition: service_completed_successfully }
+    networks: [trading-net]
+
+  receiver:
+    profiles: ["full", "receiver"]
+    build:
+      context: .
+      dockerfile: src/services/receiver/Dockerfile
+    env_file: ./.env
+    environment:
+      - SERVICE_NAME=receiver
+      - REDIS_URL=redis://redis:6379
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USER=trading_app
+      - POSTGRES_DB=trading
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db_password
+    secrets:
+      - db_password
+      - source: deribit_client_id
+        target: deribit_client_id
+      - source: deribit_client_secret
+        target: deribit_client_secret
+    depends_on:
+      janitor: { condition: service_completed_successfully }
+    networks: [trading-net]
+
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
+  deribit_client_id:
+    file: ./secrets/client_id.txt
+  deribit_client_secret:
+    file: ./secrets/client_secret.txt
+
 networks:
   trading-net:
     driver: bridge

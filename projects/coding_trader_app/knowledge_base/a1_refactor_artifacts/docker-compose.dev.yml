@@ -1,5 +1,19 @@
 # Development-specific overrides
-# ... (paste the full content of docker-compose.dev.yml here) ...
+services:
+  redis:
+    ports: ["6380:6379", "8001:8001"]
+    volumes: [redis-data-dev:/data]
+    command:
+      - redis-server
+      - "--bind 0.0.0.0"
+      - "--protected-mode no"
+
+  postgres:
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata-dev:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
 volumes:
   redis-data-dev:
   pgdata-dev:
