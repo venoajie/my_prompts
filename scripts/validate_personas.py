@@ -1,5 +1,5 @@
 # /scripts/validate_personas.py
-# Version: 4.0 (Config-Driven)
+# Version: 4.2 (Status-Aware) 
 
 import os
 import yaml
@@ -11,11 +11,12 @@ ROOT_DIR = Path(__file__).parent.parent
 CONFIG_FILE = ROOT_DIR / "pel.config.yml"
 PERSONA_FILENAME_PATTERNS = ["*.persona.md", "*.mixin.md"]
 
-# --- Validation Rules (Loaded from Config) ---
 try:
     with open(CONFIG_FILE, 'r') as f:
         PEL_CONFIG = yaml.safe_load(f)
     PERSONA_TYPE_RULES = PEL_CONFIG.get('persona_types', {})
+    VALIDATION_RULES = PEL_CONFIG.get('validation_rules', {})
+    ACTIVE_STATI = VALIDATION_RULES.get('active_stati', ['active'])
 except FileNotFoundError:
     print(f"FATAL: Configuration file not found at {CONFIG_FILE}", file=sys.stderr)
     sys.exit(1)
@@ -28,7 +29,7 @@ ARTIFACT_REQUIRED_KEYS = ['id', 'type', 'description']
 GENERIC_DESCRIPTIONS_BLACKLIST = [
     "a file", "some code", "input data", "a document", "user input"
 ]
-GREEN, YELLOW, RED, BLUE, NC = '\033[92m', '\033[93m', '\033[91m', '\033[94m', '\033[0m'
+GREEN, YELLOW, RED, BLUE, NC, GRAY = '\033[92m', '\033[93m', '\033[91m', '\033[94m', '\033[0m', '\033[90m'
 
 def find_all_personas(root_path):
     """Finds all persona and mixin files in templates and projects directories."""
@@ -59,20 +60,12 @@ def _validate_expected_artifacts(artifacts):
             
     return True, ""
 
-def validate_persona_file(file_path):
-    """Validates a single persona file based on rules from pel.config.yml."""
+def validate_persona_file(data):
+    """
+    Validates a single persona's data based on rules from pel.config.yml.
+    Receives pre-parsed data.
+    """
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-
-        parts = content.split('---')
-        if len(parts) < 3:
-            return False, "File does not contain valid YAML frontmatter."
-
-        data = yaml.safe_load(parts[1])
-        if not isinstance(data, dict):
-            return False, "YAML frontmatter is not a valid dictionary."
-
         persona_type = data.get('type')
         if not persona_type:
             return False, "Frontmatter is missing the required 'type' key (e.g., 'specialized', 'base', 'mixin')."
@@ -80,7 +73,6 @@ def validate_persona_file(file_path):
         if persona_type not in PERSONA_TYPE_RULES:
             return False, f"Invalid persona type '{persona_type}'. Must be one of: {', '.join(PERSONA_TYPE_RULES.keys())}."
 
-        # --- Config-Driven Validation Logic ---
         rules = PERSONA_TYPE_RULES[persona_type]
         required_keys = rules.get('required_keys', [])
         
@@ -95,47 +87,74 @@ def validate_persona_file(file_path):
 
         return True, f"OK: {data.get('alias', 'N/A')} ({persona_type})"
 
-    except yaml.YAMLError as e:
-        return False, f"YAML parsing error: {e}."
     except Exception as e:
-        return False, f"An unexpected error occurred: {e}."
+        return False, f"An unexpected error occurred during validation: {e}."
 
 def main():
     """Main validation function."""
-    print(f"{BLUE}--- Starting Persona Validation (v4.0 - Config-Driven) ---{NC}")
+    print(f"{BLUE}--- Starting Persona Validation (v4.2 - Status-Aware) ---{NC}")
     print(f"Loading rules from: {CONFIG_FILE}")
+    print(f"Validating only personas with status in: {ACTIVE_STATI}\n")
     
-    all_personas = find_all_personas(ROOT_DIR)
+    all_persona_paths = find_all_personas(ROOT_DIR)
     
-    if not all_personas:
+    if not all_persona_paths:
         print(f"{YELLOW}No persona files found. Validation skipped.{NC}")
         sys.exit(0)
 
-    print(f"Found {len(all_personas)} persona files to validate.\n")
-
     error_count = 0
     success_count = 0
+    skipped_count = 0
 
-    for persona_path in all_personas:
-        is_valid, message = validate_persona_file(persona_path)
+    for persona_path in all_persona_paths:
         relative_path = persona_path.relative_to(ROOT_DIR)
-        if is_valid:
-            print(f"{GREEN}[PASS]{NC} {relative_path}")
-            success_count += 1
-        else:
-            print(f"{RED}[FAIL]{NC} {relative_path}\n     └─ {YELLOW}Reason: {message}{NC}")
+        try:
+            with open(persona_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            parts = content.split('---')
+            if len(parts) < 3:
+                print(f"{RED}[FAIL]{NC} {relative_path}\n     └─ {YELLOW}Reason: File does not contain valid YAML frontmatter.{NC}")
+                error_count += 1
+                continue
+            
+            data = yaml.safe_load(parts[1])
+            if not isinstance(data, dict):
+                 print(f"{RED}[FAIL]{NC} {relative_path}\n     └─ {YELLOW}Reason: YAML frontmatter is not a valid dictionary.{NC}")
+                 error_count += 1
+                 continue
+
+            status = data.get('status')
+            if status not in ACTIVE_STATI:
+                print(f"{GRAY}[SKIP]{NC} {relative_path} (status: '{status}')")
+                skipped_count += 1
+                continue
+
+            is_valid, message = validate_persona_file(data)
+            if is_valid:
+                print(f"{GREEN}[PASS]{NC} {relative_path}")
+                success_count += 1
+            else:
+                print(f"{RED}[FAIL]{NC} {relative_path}\n     └─ {YELLOW}Reason: {message}{NC}")
+                error_count += 1
+
+        except yaml.YAMLError as e:
+            print(f"{RED}[FAIL]{NC} {relative_path}\n     └─ {YELLOW}Reason: YAML parsing error: {e}.{NC}")
             error_count += 1
-    
+        except Exception as e:
+            print(f"{RED}[FAIL]{NC} {relative_path}\n     └─ {YELLOW}Reason: An unexpected error occurred: {e}.{NC}")
+            error_count += 1
+
     print("\n" + "="*30)
     print(f"{BLUE}Validation Summary:{NC}")
     print(f"  {GREEN}Successful: {success_count}{NC}")
     print(f"  {RED}Failed:     {error_count}{NC}")
+    print(f"  {GRAY}Skipped:    {skipped_count}{NC}")
     print("="*30 + "\n")
 
     if error_count > 0:
         sys.exit(1)
     else:
-        print(f"{GREEN}All personas are valid.{NC}")
+        print(f"{GREEN}All active personas are valid.{NC}")
         sys.exit(0)
 
 if __name__ == "__main__":

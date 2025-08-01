@@ -47,3 +47,9 @@ instance_governance:
     - "complete"
     - "failed"
   archive_on_complete: true
+  
+# Defines which persona statuses the validation script should process.
+# Any persona with a status not in this list will be skipped.
+validation_rules:
+  active_stati:
+    - "active"
