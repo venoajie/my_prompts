@@ -1,20 +1,18 @@
 # /scripts/generate_manifest.py
-# This script scans all active personas and creates a machine-readable manifest.
+# Version: 2.1 (Timezone-Aware)
 
 import yaml
 from pathlib import Path
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 
 # --- Configuration ---
 ROOT_DIR = Path(__file__).parent.parent
-# We need to import find_all_personas and ACTIVE_STATI from our validator
-# to ensure we use the exact same logic for discovering active personas.
 sys.path.append(str(ROOT_DIR / "scripts"))
 try:
     from validate_personas import find_all_personas, ACTIVE_STATI
 except ImportError:
-    print("FATAL: Could not import from 'validate_personas.py'. Ensure the file exists in the 'scripts' directory.", file=sys.stderr)
+    print("FATAL: Could not import from 'validate_personas.py'.", file=sys.stderr)
     sys.exit(1)
 
 def main():
@@ -24,7 +22,8 @@ def main():
     
     manifest = {
         "version": "1.1",
-        "generated_at_utc": datetime.utcnow().isoformat() + "Z",
+        # CORRECTED: Use timezone.utc for a timezone-aware object. This is the robust way.
+        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "personas": []
     }
     
@@ -41,17 +40,13 @@ def main():
             data = yaml.safe_load(parts[1])
             if not isinstance(data, dict): continue
             
-            # The manifest should only list runnable, specialist agents.
-            # Base, mixin, and utility types are not user-selectable tasks.
             if data.get('status') in ACTIVE_STATI and data.get('type') == 'specialized':
-                # Extract the primary directive, which describes the persona's function.
                 body = "---".join(parts[2:])
                 directive_start = body.find('<primary_directive>')
                 directive_end = body.find('</primary_directive>')
                 
                 description = "No primary directive found."
                 if directive_start != -1 and directive_end != -1:
-                    # Clean up the extracted text
                     description = body[directive_start + 19 : directive_end].strip().replace('\n', ' ').replace('  ', ' ')
 
                 manifest["personas"].append({
@@ -63,7 +58,6 @@ def main():
             print(f"Warning: Could not process file {persona_path}. Reason: {e}", file=sys.stderr)
             continue
             
-    # Sort the final list alphabetically by alias for consistent output
     manifest["personas"].sort(key=lambda x: x['alias'])
     
     output_file = ROOT_DIR / "persona_manifest.yml"

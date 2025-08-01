@@ -1,19 +1,21 @@
 # /scripts/pel_toolkit.py
-# Version: 3.2
+# Version: 4.0 (Production Hardened)
 
 import os
 import sys
 import yaml
 from pathlib import Path
 import re
-from datetime import datetime, timedelta
+# CORRECTED: Import timezone for aware datetime objects
+from datetime import datetime, timedelta, timezone
 
-# --- Configuration (Loaded from pel.config.yml) ---
-
+# --- Configuration ---
 ROOT_DIR = Path(__file__).parent.parent
 CONFIG_FILE = ROOT_DIR / "pel.config.yml"
 PROJECTS_DIR_NAME = "projects"
 META_FILENAME = ".domain_meta"
+TEMPLATES_DIR_NAME = "templates"
+PERSONAS_DIR_NAME = "personas"
 
 try:
     with open(CONFIG_FILE, 'r') as f:
@@ -27,10 +29,7 @@ except yaml.YAMLError as e:
     sys.exit(1)
 
 def is_manifest_stale(manifest_path, root_dir):
-    """
-    Checks if the manifest is older than any recently modified persona file,
-    with a grace period to prevent race conditions.
-    """
+    """Checks if the manifest is older than any recently modified persona file."""
     if not manifest_path.exists():
         return True, "Manifest file does not exist."
 
@@ -41,11 +40,8 @@ def is_manifest_stale(manifest_path, root_dir):
     if not generated_at_str:
         return True, "Manifest is missing the 'generated_at_utc' timestamp."
         
-    if generated_at_str.endswith('Z'):
-        generated_at_str = generated_at_str[:-1]
-    
+    # CORRECTED: This correctly parses a timezone-aware ISO 8601 string.
     manifest_time = datetime.fromisoformat(generated_at_str)
-    # Add a 2-second grace period to the manifest time for comparison
     manifest_time_with_grace = manifest_time + timedelta(seconds=2)
 
     sys.path.append(str(root_dir / "scripts"))
@@ -53,64 +49,89 @@ def is_manifest_stale(manifest_path, root_dir):
     all_personas = find_all_personas(root_dir)
     
     for persona_path in all_personas:
-        persona_mtime = datetime.fromtimestamp(persona_path.stat().st_mtime)
-        if persona_mtime > manifest_time_with_grace:
+        # CORRECTED: Get the file modification time and make it timezone-aware (UTC).
+        persona_mtime_utc = datetime.fromtimestamp(persona_path.stat().st_mtime, tz=timezone.utc)
+        if persona_mtime_utc > manifest_time_with_grace:
             return True, f"Persona '{persona_path.name}' was modified after the manifest was generated."
             
     return False, "Manifest is up-to-date."
 
-
 def find_project_root(instance_path):
-    """
-    Traverses up from the instance file to find the project root directory,
-    defined as the directory containing the '.domain_meta' file.
-    """
+    """Traverses up from the instance file to find the project root directory."""
     current_path = Path(instance_path).resolve().parent
-    while current_path != current_path.parent: # Stop at filesystem root
+    while current_path != current_path.parent:
         if (current_path / META_FILENAME).exists():
             return current_path
         current_path = current_path.parent
-    return None # Project root not found
+    return None
+
+# --- RESTORED HELPER FUNCTIONS ---
 def get_template_path(project_root):
-    # ...
-    pass
+    meta_file = project_root / META_FILENAME
+    if not meta_file.exists(): return None
+    with open(meta_file, 'r') as f:
+        meta_data = yaml.safe_load(f)
+    template_name = meta_data.get('template')
+    if not template_name: return None
+    return ROOT_DIR / TEMPLATES_DIR_NAME / template_name
+
 def find_persona_file(persona_alias, project_root, template_path):
-    # ...
-    pass
+    search_alias = persona_alias.lower()
+    potential_search_dirs = {
+        "project": project_root / PERSONAS_DIR_NAME if project_root else None,
+        "template": template_path / PERSONAS_DIR_NAME if template_path else None
+    }
+    search_paths = [potential_search_dirs[p] for p in RESOLUTION_PATHS if potential_search_dirs.get(p)]
+    for path in search_paths:
+        if path and path.exists():
+            found_files = list(path.rglob(f"**/{search_alias}.persona.md")) + \
+                          list(path.rglob(f"**/{search_alias}.mixin.md"))
+            if len(found_files) > 1:
+                raise FileExistsError(f"Ambiguity Error: Found multiple personas with alias '{search_alias}' in scope '{path}'.")
+            if found_files:
+                return found_files[0]
+    return None
+
 def assemble_persona_content(persona_path, project_root, template_path):
-    # ...
-    pass
+    with open(persona_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    parts = content.split('---')
+    if len(parts) < 3: return content
+    frontmatter_str, body = parts[1], "---".join(parts[2:])
+    data = yaml.safe_load(frontmatter_str)
+    inherits_from = data.get('inherits_from')
+    if inherits_from:
+        parent_path = find_persona_file(inherits_from, project_root, template_path)
+        if not parent_path:
+            raise FileNotFoundError(f"Inherited persona '{inherits_from}' not found for '{persona_path.name}'.")
+        parent_content = assemble_persona_content(parent_path, project_root, template_path)
+        return parent_content + "\n" + body.strip()
+    return body.strip()
+
 def inject_file_content(mandate_body):
-    # ...
-    pass
+    inject_pattern = re.compile(r'<Inject\s+src="([^"]+)"\s*/>')
+    def replacer(match):
+        file_path = ROOT_DIR / match.group(1)
+        if file_path.exists():
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        return f"[ERROR: Injected file not found at '{match.group(1)}']"
+    return inject_pattern.sub(replacer, mandate_body)
 
 def main(instance_file_path):
-    """Main assembly function."""
     instance_path = Path(instance_file_path)
-    
-    if not instance_path.exists():
-        print(f"Error: Instance file not found at {instance_path}", file=sys.stderr)
-        sys.exit(1)
-
     with open(instance_path, 'r', encoding='utf-8') as f:
         content = f.read()
-
     parts = content.split('---')
     if len(parts) < 3:
         print("Error: Instance file is missing YAML frontmatter.", file=sys.stderr)
         sys.exit(1)
-
-    frontmatter_str = parts[1]
-    mandate_body = "---".join(parts[2:])
-    
-    instance_data = yaml.safe_load(frontmatter_str)
+    instance_data = yaml.safe_load(parts[1])
     persona_alias = instance_data.get('persona_alias')
-
     if not persona_alias:
         print("Error: 'persona_alias' not defined in instance frontmatter.", file=sys.stderr)
         sys.exit(1)
 
-    # --- STALENESS CHECK GUARDRAIL ---
     if persona_alias == "SI-1":
         manifest_path = ROOT_DIR / "persona_manifest.yml"
         stale, reason = is_manifest_stale(manifest_path, ROOT_DIR)
@@ -121,24 +142,17 @@ def main(instance_file_path):
             sys.exit(1)
 
     try:
-        # Pass the absolute path to the root finder
-        project_root = find_project_root(instance_path.resolve())
+        project_root = find_project_root(instance_path)
         if not project_root:
-            # Use .resolve() only for the error message for clarity
             print(f"Error: Could not determine project root for instance file: {instance_path.resolve()}", file=sys.stderr)
             sys.exit(1)
-            
         template_path = get_template_path(project_root)
-        
         persona_path = find_persona_file(persona_alias, project_root, template_path)
         if not persona_path:
             print(f"Error: Persona '{persona_alias}' not found in project '{project_root.name}' or its template.", file=sys.stderr)
             sys.exit(1)
-            
         full_persona_content = assemble_persona_content(persona_path, project_root, template_path)
-
-        final_mandate = inject_file_content(mandate_body)
-
+        final_mandate = inject_file_content("---".join(parts[2:]))
         final_prompt = f"""<SystemPrompt>
     <PersonaLibrary>
 {full_persona_content}
@@ -150,10 +164,9 @@ def main(instance_file_path):
 </Instance>
 """
         print(final_prompt)
-    except (FileNotFoundError, FileExistsError) as e:
+    except (FileNotFoundError, FileExistsError, Exception) as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
-
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
