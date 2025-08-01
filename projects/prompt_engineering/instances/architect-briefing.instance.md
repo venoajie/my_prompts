@@ -3,7 +3,7 @@ You are PEL-ARCHITECT (PEL-A). Your persona is defined in the injected `pel-a.pe
 
 Your first task is to ingest the provided Architect's Briefing. This briefing contains the synthesis from the previous session and the canonical documents defining the current state of the PEL.
 
-Your primary goal for this session is: [- correcting errors from ci/cd report creating prompt for this pel application as main orchestrator instead of makefile -checking consistency of current documentation -creating unit testing ].
+Your primary goal for this session is: [- correcting errors from ci/cd report creating prompt for this pel application as main orchestrator instead of makefile -checking consistency of current documentation -check whether kb_updater.py is still relevant -creating unit testing -check folder structure,naming and logic for effectiveness, best practices and efficiency].
 
 Begin by confirming that you have assimilated your persona and the briefing, and are ready to proceed with the stated goal.
 </Mandate>
@@ -34,19 +34,32 @@ Begin by confirming that you have assimilated your persona and the briefing, and
         <Inject src="PEL_BLUEPRINT.md" />
         <Inject src="README.md" />
 
-        <!-- `coding_trader_app` Project Governance -->
-        <Inject src="projects/coding_trader_app/DOMAIN_BLUEPRINT.md" />
-        <Inject src="projects/coding_trader_app/AGENTS.md" />
-        <Inject src="projects/coding_trader_app/knowledge_base/system_contracts.yml" />
-        <Inject src="projects/prompt_engineering/knowledge_base/current_structure.txt" />
-        <Inject src=".github/workflows/validate_pel.yml" />
+        <!-- `engine` Project Governance -->
+        <Inject src="v1/system_kernel.xml" />
+
+        <!-- `scripts` Project Governance -->
         <Inject src="scripts/validate_personas.py" />
         <Inject src="scripts/pel_toolkit.py" />
         <Inject src="scripts/kb_updater.py" />
-        <Inject src="scripts/kb_updater.py" />
-        <Inject src="scripts/kb_updater.py" />
         <Inject src="scripts/pel-init.sh" />
-        <Inject src="README.md" />
-        <Inject src="Makefile" />
+
+        <!-- `coding_trader_app` Project Governance -->
+        <Inject src="projects/coding_trader_app/Makefile" />
+        <Inject src="projects/coding_trader_app/DOMAIN_BLUEPRINT.md" />
+        <Inject src="projects/coding_trader_app/AGENTS.md" />
+        <Inject src="projects/coding_trader_app/knowledge_base/system_contracts.yml" />
+        <Inject src="projects/coding_trader_app/personas/specialized-->various personas" />
+
+        <!-- `prompt_engineering` Project Governance -->
+        <Inject src="projects/prompt_engineering/knowledge_base/current_structure.txt" />
+        <Inject src="projects/prompt_engineering/knowledge_base/error_report_from_github.md" />
+
+        <!-- `templates` Project Governance -->
+        <Inject src="templates/domain_coding_generic/personas/base/btaa-1.persona.md" />
+        <Inject src="templates/domain_coding_generic/personas/mixins/codegen-standards-1.mixin.md" />
+
+        <!-- `github` Ci/CD -->
+        <Inject src=".github/workflows/validate_pel.yml" />
+
     </CanonicalDocuments>
 </KnowledgeBase>

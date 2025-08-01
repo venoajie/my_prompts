@@ -2,7 +2,7 @@
 --- Validating All Personas ---
 --- Starting Persona Validation (v3.1) ---
 Searching for personas in: /home/runner/work/my_prompts/my_prompts/templates and /home/runner/work/my_prompts/my_prompts/projects
-Found 31 persona files to validate.
+Found 32 persona files to validate.
 
 [PASS] templates/domain_coding_generic/personas/base/btaa-1.persona.md
 [FAIL] templates/domain_coding_generic/personas/mixins/codegen-standards-1.mixin.md
@@ -46,10 +46,11 @@ Found 31 persona files to validate.
 [FAIL] projects/prompt_engineering/personas/specialized/session-synthesizer.persona.md
      └─ Reason: Missing required keys for specialized persona: inherits_from, expected_artifacts.
 [PASS] projects/prompt_engineering/personas/base/bcaa-1.persona.md
+[PASS] projects/prompt_engineering/personas/base/btaa-1.persona.md
 
 ==============================
 Validation Summary:
-  Successful: 20
+  Successful: 21
   Failed:     11
 ==============================
 
