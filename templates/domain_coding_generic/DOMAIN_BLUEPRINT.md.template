@@ -1,25 +1,49 @@
-# DOMAIN_BLUEPRINT.md
-# Project: [PROJECT_NAME]
-# Template: domain_coding_generic
+# Domain Blueprint: [Project Name]
 
 **Version:** 1.0
-**Status:** Active
+**Template:** domain_coding_generic
 
-## 1.0 Project Overview
+## 1. Core Mandate
 
-This document outlines the architectural principles and core components for the **[PROJECT_NAME]** project. This project is a standard software development initiative managed within the Prompt Engineering Library (PEL).
+This document defines the architecture, agents, and operational principles for the **[Project Name]** project. The primary goal of this project is to **[Describe the high-level objective, e.g., 'build and maintain a suite of agents for a quantitative trading application']**.
 
-## 2.0 Core Principles
+---
 
-This project adheres to the global principles defined in the root `PEL_BLUEPRINT.md` and adds the following project-specific constraints:
+## 2. Architecture & Governance
 
-*   **Principle 2.1 (Technology Stack):** *[Specify the primary technology stack, e.g., Python 3.11, FastAPI, PostgreSQL].*
-*   **Principle 2.2 (Testing Strategy):** *[Specify the testing approach, e.g., All new business logic must be accompanied by unit tests using the `pytest` framework].*
-*   **Principle 2.3 (Code Style):** *[Specify the code style, e.g., All Python code must adhere to the `black` code formatter].*
+### 2.1. Global Governance
 
-## 3.0 Key Components
+This project operates under the architectural rules defined in the root `/pel.config.yml` file and uses the shared automation logic from `/scripts/common.mk`. All personas and workflows within this project must adhere to these global standards.
 
-This section should be updated to describe the high-level components and services specific to this project.
+### 2.2. Standard Workflow
 
-*   **Component A:** *[Description of the first major service or module].*
-*   **Component B:** *[Description of the second major service or module].*
+All new work sessions within this project MUST be initiated via the global `SI-1` (Session Initiator) persona. This ensures that any high-level goal is formally captured and routed to the correct specialist agent. Refer to the root `README.md` for the exact procedure.
+
+### 2.3. Persona Architecture
+
+The core of this project is its set of AI agents (personas). The following rules govern their creation and structure:
+
+**Mandatory `type` Key:** Every persona's YAML frontmatter MUST include a `type` key. This key declares the persona's architectural role and determines which validation rules apply to it. The valid types are: `specialized`, `base`, `mixin`, and `utility`.
+
+---
+
+## 3. Key Personas
+
+*[This section should be filled out to describe the primary agents specific to this project.]*
+
+| Alias | Title | Type | Core Function |
+| :--- | :--- | :--- | :--- |
+| `csa-1` | Collaborative Systems Architect | `specialized` | Designs and refactors systems based on a mandate. |
+| `da-1` | Debugging Analyst | `specialized` | Diagnoses and fixes bugs based on an error report. |
+| ... | ... | ... | ... |
+
+---
+
+## 4. Knowledge Base & Data Contracts
+
+*[This section should define the key data structures and documents that agents in this project will use as their source of truth.]*
+
+*   **`PROJECT_ROADMAP.md`:** Outlines the high-level goals and future development priorities for this project.
+*   **`system_contracts.yml`:** A machine-readable data dictionary defining all major data schemas.
+*   ...
+```

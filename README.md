@@ -2,7 +2,7 @@
 
 # Prompt Engineering Library (PEL)
 
-This repository is a systematic, scalable library for developing, testing, and managing expert AI agents and their prompts.
+This repository is a systematic, scalable library for developing, testing, and managing expert AI agents and their prompts. It is built on a config-driven architecture that prioritizes clarity, consistency, and automation.
 
 ## Core Philosophy
 
@@ -10,106 +10,74 @@ A prompt is not a command; it is the blueprint for an agent. The purpose of this
 
 ## Core Concepts
 
-The PEL is built on a config-driven architecture that prioritizes clarity, consistency, and automation.
+1.  **Centralized Governance (`pel.config.yml`):** The architectural rules for the entire library—such as valid persona types and their required fields—are defined in the root `pel.config.yml` file.
 
-1.  **Centralized Governance (`pel.config.yml`):** The architectural rules for the entire library—such as valid persona types and their required fields—are defined in the root `pel.config.yml` file. This is the single source of truth for system-wide standards.
+2.  **Shared Automation (`scripts/common.mk`):** All common automation tasks (`generate-prompt`, `archive`, `clean`) are defined in a single, shared `scripts/common.mk` file. Project-specific `Makefile`s are minimal stubs that `include` this common logic.
 
-2.  **Shared Automation (`scripts/common.mk`):** All common automation tasks (`generate-prompt`, `archive`, `clean`) are defined in a single, shared `scripts/common.mk` file. Project-specific `Makefile`s are now minimal stubs that `include` this common logic, ensuring a consistent developer experience across all projects.
+3.  **Routed Invocation Model:** The library uses a single entry-point persona, `SI-1` (Session Initiator), to start all new tasks. The user provides a high-level goal, and `SI-1` intelligently routes it to the correct specialist agent by consulting a system-wide `persona_manifest.yml`.
 
-3.  **Hierarchy:** The library follows a strict hierarchy:
-    *   **Templates (`/templates`):** Reusable skeletons for different types of projects.
-    *   **Projects (`/projects`):** A self-contained domain for a specific goal (e.g., `coding_trader_app`). Each project is created from a template.
-    *   **Instances (`/instances`):** A specific task or request for a persona to execute within a project.
+## The Golden Path: Standard Workflow
 
-## Core Workflow: A Quickstart
+This is the standard, end-to-end lifecycle for performing any task within the PEL.
 
-This is the standard lifecycle for working within the PEL.
+### 1. Update System Manifests (If you've changed personas)
 
-### 1. Update System Manifests (If Needed)
-
-Before starting a new session, ensure the library's manifest of available agents is up-to-date.
+If you have added, removed, or significantly changed a persona, you must update the system's manifest of available agents.
 
 ```bash
-make generate-manifestThis is the standard lifecycle for working within the PEL.
+# Run from the repository root
+make generate-manifest
 ```
+*(The system has a guardrail that will prevent you from starting a session with a stale manifest.)*
 
-### 2. Creating a New Project
+### 2. Initiate a New Session with `SI-1`
 
-All new projects MUST be created using the `pel-init.sh` script to ensure they are compliant with the current architecture.
+All new work begins by creating an instance file for the `SI-1` (Session Initiator) persona. This file states your high-level goal.
 
-```bash
-# Usage: ./scripts/pel-init.sh <template_name> <new_project_name>
-./scripts/pel-init.sh domain_coding_generic my_new_ai_project
-```
-This will create a new directory at `projects/my_new_ai_project` with the correct structure and a minimal, compliant `Makefile`.
-
-### 3. Creating a Persona
-
-Inside your project's `/personas` directory, create a new `.persona.md` file. The most critical part of a persona is its frontmatter, which must include a `type` key.
-
+**Example: `projects/coding_trader_app/instances/start-debug-session.instance.md`**
 ```yaml
 ---
-alias: my-new-agent-1
-version: 1.0.0
-type: specialized # Must be one of: specialized, base, mixin, utility
-title: My New Agent
-status: active
-inherits_from: btaa-1 # Base Technical Analysis Agent
-expected_artifacts:
-  - id: primary_mandate
-    type: primary
-    description: "A clear, specific goal for the agent to accomplish."
----
-<philosophy>...</philosophy>
-<primary_directive>...</primary_directive>
-<operational_protocol>...</operational_protocol>
-```
-
-### 4. Creating an Instance
-
-To run a persona, create an instance file in your project's `/instances` directory (e.g., `instances/run-my-agent.instance.md`).
-
-```yaml
----
-persona_alias: my-new-agent-1
+persona_alias: SI-1
 ---
 <Mandate>
-  <primary_mandate>
-    This is the specific task I want my-new-agent-1 to perform.
-  </primary_mandate>
+  <high_level_goal>
+    My application crashed during runtime. I have the error log and need to find and fix the bug.
+  </high_level_goal>
+  <target_project>
+    coding_trader_app
+  </target_project>
+  <persona_manifest>
+    <Inject src="persona_manifest.yml" />
+  </persona_manifest>
 </Mandate>
 ```
 
-### 5. Generating and Running a Prompt
+### 3. Generate the Initiator Prompt
 
-Navigate to your project directory and use the `generate-prompt` command.
-
-```bash
-cd projects/my_new_ai_project
-make generate-prompt INSTANCE=instances/run-my-agent.instance.md
-```
-This will create the final, fully-assembled prompt in the `/build/my_new_ai_project/` directory.
-
-### 6. Archiving a Completed Instance
-
-Once you are finished with an instance, archive it using the standardized `archive` command. This keeps the `/instances` directory clean.
+Navigate to the relevant project directory and run the `generate-prompt` command.
 
 ```bash
-# For a successful run
-make archive INSTANCE=run-my-agent
-
-# For a failed run
-make archive-failed INSTANCE=run-my-agent
+cd projects/coding_trader_app
+make generate-prompt INSTANCE=instances/start-debug-session.instance.md
 ```
-This will move the instance file to `/instances/archive` with a standardized name (e.g., `2023-10-27_run-my-agent_complete.instance.md`).
 
-## Validation and CI
+### 4. Execute the `SI-1` Response
 
-To ensure all personas in the library are compliant with the architectural rules, run the master validation command from the repository root. This is the same command used by the GitHub Actions CI pipeline.
+The `SI-1` agent will analyze your goal and respond with a new, fully-formed `instance.md` file for the correct specialist agent (e.g., the `Debugging Analyst`). Save this new instance file as recommended by the agent.
+
+### 5. Generate and Execute the Specialist Prompt
+
+Now, use the new instance file generated by `SI-1` to create the prompt for the specialist.
 
 ```bash
-make validate
+# Example, using the file generated by SI-1
+make generate-prompt INSTANCE=instances/01-debug-runtime-error.instance.md
 ```
+This generates the final, actionable prompt for the specialist agent to perform the actual work.
+
+## Other Commands
+
+*   **Validation:** To ensure all personas are compliant, run `make validate` from the root directory.
+*   **Archiving:** To archive a completed instance, run `make archive INSTANCE=<instance_name>` from within the project directory.
 ```
 
----
