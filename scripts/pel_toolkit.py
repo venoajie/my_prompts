@@ -12,6 +12,7 @@ from datetime import datetime, timedelta, timezone
 # --- Configuration ---
 ROOT_DIR = Path(__file__).parent.parent
 CONFIG_FILE = ROOT_DIR / "pel.config.yml"
+GLOBAL_PERSONAS_PATH = ROOT_DIR / "projects/prompt_engineering/personas"
 PROJECTS_DIR_NAME = "projects"
 META_FILENAME = ".domain_meta"
 TEMPLATES_DIR_NAME = "templates"
@@ -75,21 +76,41 @@ def get_template_path(project_root):
     if not template_name: return None
     return ROOT_DIR / TEMPLATES_DIR_NAME / template_name
 
+
 def find_persona_file(persona_alias, project_root, template_path):
+    """
+    Searches for a persona file using a three-tiered inheritance model:
+    1. Project Scope
+    2. Template Scope
+    3. Global Scope
+    """
     search_alias = persona_alias.lower()
-    potential_search_dirs = {
-        "project": project_root / PERSONAS_DIR_NAME if project_root else None,
-        "template": template_path / PERSONAS_DIR_NAME if template_path else None
-    }
-    search_paths = [potential_search_dirs[p] for p in RESOLUTION_PATHS if potential_search_dirs.get(p)]
-    for path in search_paths:
-        if path and path.exists():
-            found_files = list(path.rglob(f"**/{search_alias}.persona.md")) + \
-                          list(path.rglob(f"**/{search_alias}.mixin.md"))
+    
+    # 1. Define the search paths in the correct order of precedence
+    search_paths = []
+    # Tier 1: Project Scope
+    if project_root:
+        search_paths.append(project_root / "personas")
+    # Tier 2: Template Scope
+    if template_path:
+        search_paths.append(template_path / "personas")
+    # Tier 3: Global Scope
+    search_paths.append(GLOBAL_PERSONAS_PATH)
+
+    # 2. Execute the search
+    for scope_path in search_paths:
+        if scope_path and scope_path.exists():
+            found_files = list(scope_path.rglob(f"**/{search_alias}.persona.md")) + \
+                          list(scope_path.rglob(f"**/{search_alias}.mixin.md"))
+            
             if len(found_files) > 1:
-                raise FileExistsError(f"Ambiguity Error: Found multiple personas with alias '{search_alias}' in scope '{path}'.")
+                raise FileExistsError(f"Ambiguity Error: Found multiple personas with alias '{search_alias}' in scope '{scope_path}'.")
+            
             if found_files:
+                # Found the persona, return the first and only match.
                 return found_files[0]
+                
+    # 3. If not found in any scope, return None
     return None
 
 def assemble_persona_content(persona_path, project_root, template_path):
