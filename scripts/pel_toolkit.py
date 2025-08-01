@@ -1,12 +1,11 @@
 # /scripts/pel_toolkit.py
-# Version: 4.0 (Production Hardened)
+# Version: 4.1 (UTE Fixes)
 
 import os
 import sys
 import yaml
 from pathlib import Path
 import re
-# CORRECTED: Import timezone for aware datetime objects
 from datetime import datetime, timedelta, timezone
 
 # --- Configuration ---
@@ -41,16 +40,15 @@ def is_manifest_stale(manifest_path, root_dir):
     if not generated_at_str:
         return True, "Manifest is missing the 'generated_at_utc' timestamp."
         
-    # CORRECTED: This correctly parses a timezone-aware ISO 8601 string.
     manifest_time = datetime.fromisoformat(generated_at_str)
     manifest_time_with_grace = manifest_time + timedelta(seconds=2)
 
-    sys.path.append(str(root_dir / "scripts"))
+    # **MODIFICATION**: The sys.path manipulation is removed from here for better testability.
+    # It is assumed the calling environment (like the Makefile) sets the path correctly.
     from validate_personas import find_all_personas
     all_personas = find_all_personas(root_dir)
     
     for persona_path in all_personas:
-        # CORRECTED: Get the file modification time and make it timezone-aware (UTC).
         persona_mtime_utc = datetime.fromtimestamp(persona_path.stat().st_mtime, tz=timezone.utc)
         if persona_mtime_utc > manifest_time_with_grace:
             return True, f"Persona '{persona_path.name}' was modified after the manifest was generated."
@@ -66,7 +64,6 @@ def find_project_root(instance_path):
         current_path = current_path.parent
     return None
 
-# --- RESTORED HELPER FUNCTIONS ---
 def get_template_path(project_root):
     meta_file = project_root / META_FILENAME
     if not meta_file.exists(): return None
@@ -79,25 +76,17 @@ def get_template_path(project_root):
 
 def find_persona_file(persona_alias, project_root, template_path):
     """
-    Searches for a persona file using a three-tiered inheritance model:
-    1. Project Scope
-    2. Template Scope
-    3. Global Scope
+    Searches for a persona file using a three-tiered inheritance model.
     """
     search_alias = persona_alias.lower()
     
-    # 1. Define the search paths in the correct order of precedence
     search_paths = []
-    # Tier 1: Project Scope
     if project_root:
         search_paths.append(project_root / "personas")
-    # Tier 2: Template Scope
     if template_path:
         search_paths.append(template_path / "personas")
-    # Tier 3: Global Scope
     search_paths.append(GLOBAL_PERSONAS_PATH)
 
-    # 2. Execute the search
     for scope_path in search_paths:
         if scope_path and scope_path.exists():
             found_files = list(scope_path.rglob(f"**/{search_alias}.persona.md")) + \
@@ -107,10 +96,8 @@ def find_persona_file(persona_alias, project_root, template_path):
                 raise FileExistsError(f"Ambiguity Error: Found multiple personas with alias '{search_alias}' in scope '{scope_path}'.")
             
             if found_files:
-                # Found the persona, return the first and only match.
                 return found_files[0]
                 
-    # 3. If not found in any scope, return None
     return None
 
 def assemble_persona_content(persona_path, project_root, template_path):
@@ -120,6 +107,11 @@ def assemble_persona_content(persona_path, project_root, template_path):
     if len(parts) < 3: return content
     frontmatter_str, body = parts[1], "---".join(parts[2:])
     data = yaml.safe_load(frontmatter_str)
+    
+    # **MODIFICATION**: Make the function robust against empty frontmatter.
+    if data is None:
+        data = {}
+
     inherits_from = data.get('inherits_from')
     if inherits_from:
         parent_path = find_persona_file(inherits_from, project_root, template_path)
@@ -140,6 +132,8 @@ def inject_file_content(mandate_body):
     return inject_pattern.sub(replacer, mandate_body)
 
 def main(instance_file_path):
+    # This function now assumes sys.path is correctly configured by the caller
+    # to find `validate_personas`.
     instance_path = Path(instance_file_path)
     with open(instance_path, 'r', encoding='utf-8') as f:
         content = f.read()
@@ -193,4 +187,7 @@ if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: python pel_toolkit.py <path_to_instance_file.md>", file=sys.stderr)
         sys.exit(1)
+    
+    # Add scripts directory to path for command-line execution
+    sys.path.append(str(Path(__file__).parent.resolve()))
     main(sys.argv[1])

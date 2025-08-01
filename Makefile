@@ -43,12 +43,12 @@ help:
 
 validate:
 	@echo "$(BLUE)--- Validating All Active Personas ---$(NC)"
-	@$(PYTHON_EXEC) scripts/validate_personas.py
+	@$(PYTHON_EXEC) pel.py validate
+
+generate-manifest:
+	@$(PYTHON_EXEC) pel.py generate-manifest
 
 update-kb:
 	@echo "Updating knowledge base inventory..."
-	@$(PYTHON_EXEC) scripts/kb_updater.py
-
-	
-generate-manifest:
-	@$(PYTHON_EXEC) scripts/generate_manifest.py
+	# Updated for consistency.
+	@$(PYTHON_EXEC) -m scripts.kb_updater
