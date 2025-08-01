@@ -1,59 +1,30 @@
-# =====================================================================
-# PEL Project Makefile (Template: domain_coding_generic)
-#
-# This Makefile provides core commands for a standard coding project.
-# It is designed to be customized for specific project needs.
-# =====================================================================
+# Makefile for the "$(PROJECT_NAME)" Project
+# This Makefile inherits all its functionality from the common toolkit.
 
-# --- Configuration ---
-PYTHON_EXEC := $(shell command -v python3 || command -v python)
-PEL_TOOLKIT_SCRIPT = ../../scripts/pel_toolkit.py
-BUILD_DIR = ../../build/$(shell basename `pwd`) # Project-specific build dir
+# --- Project-Specific Configuration ---
+# Set this to the name of the project directory.
+PROJECT_NAME := language_learning # <-- CHANGE THIS TO 'prompt_engineering' FOR THE OTHER FILE
 
-# --- Configuration ---
-INSTANCE_DIR := instances
-ARCHIVE_DIR := $(INSTANCE_DIR)/archive
-TODAY := $(shell date +%Y-%m-%d)
-
-# ANSI Color codes
-GREEN = \033[0;32m
-YELLOW = \033[1;33m
-BLUE = \033[0;34m
-NC = \033[0m
+# --- Include Common Logic ---
+# All functionality is inherited from this central file.
+include ../../scripts/common.mk
 
 # --- Target Declarations ---
-.PHONY: help generate-prompt clean
-
-# --- Default Target ---
+.PHONY: help
 .DEFAULT_GOAL := help
 
-# --- Core Commands ---
+# --- Unified Help Target ---
 help:
 	@echo "$(BLUE)================================================================$(NC)"
-	@echo "  Project: $(shell basename `pwd`)"
+	@echo "  Project: $(PROJECT_NAME)"
 	@echo "$(BLUE)================================================================$(NC)"
 	@echo ""
-	@echo "$(YELLOW)Usage:${NC}"
-	@echo "  make <command> [ARGS...]"
+	@echo "$(YELLOW)Usage: make <command> [ARGS...]$(NC)"
 	@echo ""
-	@echo "$(GREEN)Core Commands:${NC}"
-	@echo "  generate-prompt INSTANCE=<path>   - Assembles a final prompt from an instance file."
-	@echo "  clean                           - Cleans all generated build artifacts for this project."
+	@echo "$(GREEN)Available Commands:$(NC)"
+	@echo "  make generate-prompt INSTANCE=<path>    - Assembles a final prompt from an instance file. (Inherited)"
+	@echo "  make archive INSTANCE=<name>            - Archives a completed instance with status 'complete'. (Inherited)"
+	@echo "  make archive-failed INSTANCE=<name>     - Archives a completed instance with status 'failed'. (Inherited)"
+	@echo "  make clean-backups                      - Removes all .bak files from the instances directory. (Inherited)"
+	@echo "  make clean                              - Cleans all generated build artifacts for this project. (Inherited)"
 	@echo ""
-
-generate-prompt:
-	@if [ -z "$(INSTANCE)" ]; then \
-		echo "$(YELLOW)ERROR: INSTANCE variable must be set.${NC}"; \
-		echo "Usage: make generate-prompt INSTANCE=instances/your_task.instance.md"; \
-		exit 1; \
-	fi
-	@mkdir -p $(BUILD_DIR)
-	@INSTANCE_BASENAME=$$(basename $(INSTANCE) .instance.md); \
-	OUTPUT_FILE=$(BUILD_DIR)/$${INSTANCE_BASENAME}.prompt.xml; \
-	echo "Generating prompt for [$(INSTANCE)] -> [$${OUTPUT_FILE}]"; \
-	$(PYTHON_EXEC) $(PEL_TOOLKIT_SCRIPT) $(INSTANCE) > $${OUTPUT_FILE}; \
-	echo "$(GREEN)✓ Prompt generated successfully.${NC}"
-
-clean:
-	@echo "Cleaning project-specific build directory: $(BUILD_DIR)"
-	@rm -rf $(BUILD_DIR)

@@ -1,3 +1,5 @@
+# Makefile
+
 # =====================================================================
 # PEL Root Makefile (Dispatcher)
 #
@@ -24,6 +26,11 @@ NC = \033[0m
 # --- Target Declarations ---
 .PHONY: help validate new-project clean
 
+.PHONY: update-kb
+update-kb:
+	@echo "Updating knowledge base inventory..."
+	@$(PYTHON_EXEC) scripts/kb_updater.py
+	
 # --- Default Target ---
 .DEFAULT_GOAL := help
 
