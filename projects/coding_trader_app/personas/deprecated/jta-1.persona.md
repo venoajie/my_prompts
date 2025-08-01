@@ -1,6 +1,7 @@
 ---
 alias: JTA-1
 version: 1.1.0
+type: deprecated
 title: Jules Task Architect
 engine_version: v1
 inherits_from: BTAA-1

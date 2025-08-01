@@ -1,6 +1,7 @@
 ---
 alias: SA-1
 version: 1.0.0
+type: deprecated
 title: Specification Architect
 engine_version: v1
 inherits_from: BTAA-1

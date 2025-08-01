@@ -1,6 +1,7 @@
 ---
 alias: JIG-1
 version: 1.0.0
+type: deprecated
 title: Jules Information Gatherer
 engine_version: v1
 inherits_from: BTAA-1
