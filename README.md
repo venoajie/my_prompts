@@ -25,7 +25,15 @@ The PEL is built on a config-driven architecture that prioritizes clarity, consi
 
 This is the standard lifecycle for working within the PEL.
 
-### 1. Creating a New Project
+### 1. Update System Manifests (If Needed)
+
+Before starting a new session, ensure the library's manifest of available agents is up-to-date.
+
+```bash
+make generate-manifestThis is the standard lifecycle for working within the PEL.
+```
+
+### 2. Creating a New Project
 
 All new projects MUST be created using the `pel-init.sh` script to ensure they are compliant with the current architecture.
 
@@ -35,7 +43,7 @@ All new projects MUST be created using the `pel-init.sh` script to ensure they a
 ```
 This will create a new directory at `projects/my_new_ai_project` with the correct structure and a minimal, compliant `Makefile`.
 
-### 2. Creating a Persona
+### 3. Creating a Persona
 
 Inside your project's `/personas` directory, create a new `.persona.md` file. The most critical part of a persona is its frontmatter, which must include a `type` key.
 
@@ -57,7 +65,7 @@ expected_artifacts:
 <operational_protocol>...</operational_protocol>
 ```
 
-### 3. Creating an Instance
+### 4. Creating an Instance
 
 To run a persona, create an instance file in your project's `/instances` directory (e.g., `instances/run-my-agent.instance.md`).
 
@@ -72,7 +80,7 @@ persona_alias: my-new-agent-1
 </Mandate>
 ```
 
-### 4. Generating and Running a Prompt
+### 5. Generating and Running a Prompt
 
 Navigate to your project directory and use the `generate-prompt` command.
 
@@ -82,7 +90,7 @@ make generate-prompt INSTANCE=instances/run-my-agent.instance.md
 ```
 This will create the final, fully-assembled prompt in the `/build/my_new_ai_project/` directory.
 
-### 5. Archiving a Completed Instance
+### 6. Archiving a Completed Instance
 
 Once you are finished with an instance, archive it using the standardized `archive` command. This keeps the `/instances` directory clean.
 

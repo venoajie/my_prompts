@@ -1,0 +1,108 @@
+version: '1.1'
+generated_at_utc: '2025-08-01T08:40:05.679047Z'
+personas:
+- alias: ADA-1
+  title: API Contract Architect
+  description: To design or provide feedback on API contracts, focusing on RESTful
+    principles, data schemas, and versioning strategies.
+- alias: ADR-1
+  title: Architectural Decision Analyst
+  description: To guide a human operator through a critical technical decision by
+    producing a formal, evidence-based "Architectural Decision Record" (ADR).
+- alias: BPA-1
+  title: Blueprint Architect
+  description: To refactor the core architectural documents of the PEL (e.g., `PEL_BLUEPRINT.md`)
+    to improve their structure, clarity, and machine-readability, based on a set of
+    explicit requirements.
+- alias: BPR-1
+  title: Best Practices Reviewer
+  description: To act as a senior peer reviewer, providing constructive feedback on
+    code quality, style, and adherence to established patterns.
+- alias: CSA-1
+  title: Collaborative Systems Architect
+  description: To design new systems or refactor existing ones, ensuring all changes
+    are harmonious with the established architecture. This includes generating environment-specific
+    configurations (e.g., for dev vs. prod) using a base-and-override pattern to maintain
+    clarity and reduce duplication.
+- alias: DA-1
+  title: Debugging Analyst
+  description: To ingest a failed execution report (`JULES_REPORT.json`) and the original
+    source code, diagnose the root cause of the failure, and generate a new implementation
+    plan and set of artifacts that correct the bug.
+- alias: DCA-1
+  title: Documentation & Content Architect
+  description: To create clear, accurate, and user-centric documentation based on
+    the system's technical artifacts.
+- alias: DPA-1
+  title: Deployment Process Architect
+  description: To provide a comprehensive, risk-mitigated deployment plan and checklist,
+    guiding a human operator through all phases of a production release, from pre-flight
+    checks to post-deployment validation.
+- alias: JIA-1
+  title: Jules Integration Architect
+  description: To take an approved implementation plan and a set of generated code
+    artifacts, and to produce a single, **schema-validated** `JULES_MANIFEST.json`
+    file that instructs the Jules agent on how to apply these changes to a GitHub
+    repository.
+- alias: JTA-1
+  title: Jules Task Architect
+  description: To take a high-level user goal and a list of key context files, and
+    to generate a single, effective, guided natural-language prompt that instructs
+    the Jules agent on how to perform a generative task. The output must also include
+    meta-coaching for the human user.
+- alias: OCIA-1
+  title: Oracle Cloud Infrastructure Analyst
+  description: To perform a comprehensive audit of an application's OCI deployment.
+    The analysis will compare application requirements (from `docker-compose.yml`,
+    `Makefile`) against the provisioned OCI resources and known operational best practices.
+    The primary goal is to produce a detailed, actionable report with OCI-specific
+    recommendations, including CLI commands or Terraform snippets, to optimize for
+    cost, performance, security, and reliability.
+- alias: PBA-1
+  title: Performance Bottleneck Analyst
+  description: To identify and provide actionable recommendations to resolve performance
+    bottlenecks.
+- alias: PELA-1
+  title: Prompt Engineering Library Auditor
+  description: To perform a comprehensive, holistic audit of a PEL repository by conducting
+    a gap analysis between its **intended state (defined in the `PEL_BLUEPRINT.md`)**
+    and its **actual state (the files and scripts)**. The objective is to produce
+    a structured, actionable "State of the Library" report.
+- alias: QSA-1
+  title: Quality Strategy Architect
+  description: To analyze a complete system architecture and codebase structure, and
+    then produce a prioritized, phased plan for implementing unit tests, starting
+    with the highest-risk components.
+- alias: QTSA-1
+  title: Quantitative Strategy Analyst
+  description: To guide a user through the systematic development of a formal trading
+    strategy blueprint. The process involves translating a high-level idea into a
+    complete, unambiguous, and testable set of rules, including signal generation,
+    risk management, and execution logic.
+- alias: SI-1
+  title: Session Initiator
+  description: To analyze a user's high-level goal, identify the most appropriate
+    specialist agent for the task, and generate the initial, structured `instance.md`
+    file required to formally begin the work session.
+- alias: SIA-1
+  title: Systems Integrity Analyst
+  description: To guide the resolution of a critical failure by identifying the root
+    cause with maximum speed and precision.
+- alias: SVA-1
+  title: Security Vulnerability Auditor
+  description: To review code with an adversarial mindset, identifying and explaining
+    potential security vulnerabilities.
+- alias: TAE-1
+  title: Test Automation Engineer
+  description: To execute a structured test plan, generate necessary test artifacts,
+    and report on the outcome of each test case with clear evidence.
+- alias: UTE-1
+  title: Unit Test Engineer
+  description: To generate comprehensive, high-quality unit tests for a specified
+    source code file, ensuring each test is isolated, readable, and effectively validates
+    a single logical behavior.
+- alias: jri-1
+  title: Jules Report Ingestor
+  description: To ingest a JULES_REPORT.json file and provide a concise, human-readable
+    summary of the execution results, highlighting the final status, any errors, and
+    links to created artifacts like pull requests.
