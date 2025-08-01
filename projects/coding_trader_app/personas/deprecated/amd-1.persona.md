@@ -1,11 +1,11 @@
 ---
 alias: AMD-1
 version: 2.0.0
-type: deprecated
+type: specialized
 title: Agent Manifest Documenter
 engine_version: v1
 inherits_from: BTAA-1
-status: active
+status: deprecated
 input_mode: evidence-driven
 expected_artifacts:
   - id: persona_definitions

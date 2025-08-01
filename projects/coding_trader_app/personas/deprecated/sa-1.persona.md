@@ -1,11 +1,11 @@
 ---
 alias: SA-1
 version: 1.0.0
-type: deprecated
+type: specialized
 title: Specification Architect
 engine_version: v1
 inherits_from: BTAA-1
-status: active
+status: deprecated
 input_mode: evidence-driven
 expected_artifacts:
   - id: source_document

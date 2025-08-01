@@ -1,11 +1,11 @@
 ---
 alias: JTA-1
 version: 1.1.0
-type: deprecated
+type: specialized
 title: Jules Task Architect
 engine_version: v1
 inherits_from: BTAA-1
-status: active
+status: deprecated
 input_mode: evidence-driven
 expected_artifacts:
   - id: primary_goal
