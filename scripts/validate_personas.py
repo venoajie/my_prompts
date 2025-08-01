@@ -1,5 +1,5 @@
 # /scripts/validate_personas.py
-# Version: 3.1 (Refactored & Hardened)
+# Version: 4.0 (Config-Driven)
 
 import os
 import yaml
@@ -8,21 +8,26 @@ from pathlib import Path
 
 # --- Configuration ---
 ROOT_DIR = Path(__file__).parent.parent
+CONFIG_FILE = ROOT_DIR / "pel.config.yml"
 PERSONA_FILENAME_PATTERNS = ["*.persona.md", "*.mixin.md"]
 
-# --- Persona Types & Validation Rules ---
-PERSONA_TYPE_SPECIALIZED = 'specialized'
-PERSONA_TYPE_BASE = 'base'
-PERSONA_TYPE_MIXIN = 'mixin'
+# --- Validation Rules (Loaded from Config) ---
+try:
+    with open(CONFIG_FILE, 'r') as f:
+        PEL_CONFIG = yaml.safe_load(f)
+    PERSONA_TYPE_RULES = PEL_CONFIG.get('persona_types', {})
+except FileNotFoundError:
+    print(f"FATAL: Configuration file not found at {CONFIG_FILE}", file=sys.stderr)
+    sys.exit(1)
+except yaml.YAMLError as e:
+    print(f"FATAL: Error parsing {CONFIG_FILE}: {e}", file=sys.stderr)
+    sys.exit(1)
 
-BASE_REQUIRED_KEYS = ['alias', 'version', 'title', 'status']
-SPECIALIZED_REQUIRED_KEYS = BASE_REQUIRED_KEYS + ['inherits_from', 'expected_artifacts']
+# --- Constants ---
 ARTIFACT_REQUIRED_KEYS = ['id', 'type', 'description']
 GENERIC_DESCRIPTIONS_BLACKLIST = [
     "a file", "some code", "input data", "a document", "user input"
 ]
-
-# --- ANSI Color Codes ---
 GREEN, YELLOW, RED, BLUE, NC = '\033[92m', '\033[93m', '\033[91m', '\033[94m', '\033[0m'
 
 def find_all_personas(root_path):
@@ -34,17 +39,6 @@ def find_all_personas(root_path):
             for pattern in PERSONA_FILENAME_PATTERNS:
                 persona_files.extend(path.rglob(pattern))
     return persona_files
-
-def get_persona_type(file_path):
-    """Determines if a persona is base, mixin, or specialized based on its directory."""
-    path_parts = file_path.parts
-    if PERSONA_TYPE_BASE in path_parts:
-        return PERSONA_TYPE_BASE
-    if PERSONA_TYPE_MIXIN in path_parts:
-        return PERSONA_TYPE_MIXIN
-    if PERSONA_TYPE_SPECIALIZED in path_parts:
-        return PERSONA_TYPE_SPECIALIZED
-    return None
 
 def _validate_expected_artifacts(artifacts):
     """Helper function to validate the structure and content of the expected_artifacts block."""
@@ -66,11 +60,7 @@ def _validate_expected_artifacts(artifacts):
     return True, ""
 
 def validate_persona_file(file_path):
-    """Validates a single persona file based on its type."""
-    persona_type = get_persona_type(file_path)
-    if not persona_type:
-        return False, "Could not determine persona type (base, mixin, specialized) from path."
-
+    """Validates a single persona file based on rules from pel.config.yml."""
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
@@ -83,14 +73,22 @@ def validate_persona_file(file_path):
         if not isinstance(data, dict):
             return False, "YAML frontmatter is not a valid dictionary."
 
-        # --- Refactored Validation Logic ---
-        required_keys_for_type = SPECIALIZED_REQUIRED_KEYS if persona_type == PERSONA_TYPE_SPECIALIZED else BASE_REQUIRED_KEYS
-        
-        missing_keys = [key for key in required_keys_for_type if key not in data]
-        if missing_keys:
-            return False, f"Missing required keys for {persona_type} persona: {', '.join(missing_keys)}."
+        persona_type = data.get('type')
+        if not persona_type:
+            return False, "Frontmatter is missing the required 'type' key (e.g., 'specialized', 'base', 'mixin')."
 
-        if persona_type == PERSONA_TYPE_SPECIALIZED:
+        if persona_type not in PERSONA_TYPE_RULES:
+            return False, f"Invalid persona type '{persona_type}'. Must be one of: {', '.join(PERSONA_TYPE_RULES.keys())}."
+
+        # --- Config-Driven Validation Logic ---
+        rules = PERSONA_TYPE_RULES[persona_type]
+        required_keys = rules.get('required_keys', [])
+        
+        missing_keys = [key for key in required_keys if key not in data]
+        if missing_keys:
+            return False, f"Missing required keys for '{persona_type}' persona: {', '.join(missing_keys)}."
+
+        if persona_type == "specialized":
             is_valid, msg = _validate_expected_artifacts(data.get('expected_artifacts', []))
             if not is_valid:
                 return False, msg
@@ -104,8 +102,8 @@ def validate_persona_file(file_path):
 
 def main():
     """Main validation function."""
-    print(f"{BLUE}--- Starting Persona Validation (v3.1) ---{NC}")
-    print(f"Searching for personas in: {ROOT_DIR / 'templates'} and {ROOT_DIR / 'projects'}")
+    print(f"{BLUE}--- Starting Persona Validation (v4.0 - Config-Driven) ---{NC}")
+    print(f"Loading rules from: {CONFIG_FILE}")
     
     all_personas = find_all_personas(ROOT_DIR)
     

@@ -1,0 +1,42 @@
+# /pel.config.yml
+# Version: 1.0
+# This file is the single source of truth for the PEL's architectural rules.
+
+# Defines the search order for persona and template resolution.
+resolution_paths:
+  - "project"   # Look in the project's /personas directory first.
+  - "template"  # Then look in the associated template's /personas directory.
+
+# Defines valid persona types and their validation rules.
+# The validator script will now read a 'type' key from the persona's
+# frontmatter and use these rules, instead of relying on file paths.
+persona_types:
+  specialized:
+    required_keys:
+      - "alias"
+      - "version"
+      - "title"
+      - "status"
+      - "inherits_from"
+      - "expected_artifacts"
+  base:
+    required_keys:
+      - "alias"
+      - "version"
+      - "title"
+      - "status"
+  mixin:
+    required_keys:
+      - "alias"
+      - "version"
+      - "title"
+      - "status"
+
+# Defines the standard for instance files and their lifecycle.
+instance_governance:
+  filename_format: "{YYYY-MM-DD}_{instance_id}_{status}.instance.md"
+  valid_stati:
+    - "pending"
+    - "complete"
+    - "failed"
+  archive_on_complete: true
