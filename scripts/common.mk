@@ -1,20 +1,17 @@
 # /scripts/common.mk
-# Version: 1.0
+# Version: 1.1
 # This file contains all common, shared logic for project Makefiles.
-# It is intended to be included by project-specific Makefiles.
 
 # --- Common Configuration ---
-# These variables are expected to be available for all projects.
 ROOT_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))/..
 PYTHON_EXEC := $(shell command -v python3 || command -v python)
 PEL_TOOLKIT_SCRIPT = $(ROOT_DIR)/scripts/pel_toolkit.py
-BUILD_DIR = $(ROOT_DIR)/build/$(PROJECT_NAME) # Expects PROJECT_NAME to be set by the calling Makefile
+BUILD_DIR = $(ROOT_DIR)/build/$(PROJECT_NAME)
 
 INSTANCE_DIR := instances
 ARCHIVE_DIR := $(INSTANCE_DIR)/archive
 TODAY := $(shell date +%Y-%m-%d)
 
-# ANSI Color codes for pretty output
 GREEN = \033[0;32m
 YELLOW = \033[1;33m
 BLUE = \033[0;34m

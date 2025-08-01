@@ -1,14 +1,12 @@
-# projects\coding_trader_app\Makefile
-# =====================================================================
 # Makefile for the "coding_trader_app" Project
-# Version: 2.0 (Project-Specific)
-# =====================================================================
+# Version: 2.1 (Refactored & Unified Help)
 
 # --- Project-Specific Configuration ---
 PROJECT_NAME := coding_trader_app
 
 # --- Include Common Logic ---
 # All common targets (generate-prompt, archive, clean) are inherited from here.
+# This line causes Make to load and use the targets from the common file.
 include ../../scripts/common.mk
 
 # --- Target Declarations ---
@@ -40,10 +38,7 @@ help:
 	@echo "  make clean                              - Cleans all generated build artifacts for this project. (Inherited)"
 	@echo ""
 
-# =====================================================================
-# CORE WORKFLOWS
-# ====================================================================="
-
+# --- Project-Specific Targets ---
 end-session:
 	@if [ -z "$(LOG)" ]; then \
 		echo "ERROR: Please specify the session log file."; \
@@ -67,9 +62,6 @@ end-session:
 	echo "2. Save the resulting JSON output to your knowledge_base (e.g., session_synthesis_latest.json)."; \
 	echo "$(YELLOW)-----------------------------------------------------------------------$(NC)";
 
-# =====================================================================
-# JULES INTEGRATION WORKFLOWS
-# =====================================================================
 generate-manifest-prompt:
 	@$(MAKE) generate-prompt INSTANCE=$(INSTANCE)
 
