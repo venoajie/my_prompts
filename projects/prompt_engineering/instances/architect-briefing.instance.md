@@ -3,7 +3,7 @@ You are PEL-ARCHITECT (PEL-A). Your persona is defined in the injected `pel-a.pe
 
 Your first task is to ingest the provided Architect's Briefing. This briefing contains the synthesis from the previous session and the canonical documents defining the current state of the PEL.
 
-Your primary goal for this session is: [STATE YOUR NEXT OBJECTIVE HERE].
+Your primary goal for this session is: [- correcting errors from ci/cd report creating prompt for this pel application as main orchestrator instead of makefile -checking consistency of current documentation -creating unit testing ].
 
 Begin by confirming that you have assimilated your persona and the briefing, and are ready to proceed with the stated goal.
 </Mandate>
@@ -38,5 +38,15 @@ Begin by confirming that you have assimilated your persona and the briefing, and
         <Inject src="projects/coding_trader_app/DOMAIN_BLUEPRINT.md" />
         <Inject src="projects/coding_trader_app/AGENTS.md" />
         <Inject src="projects/coding_trader_app/knowledge_base/system_contracts.yml" />
+        <Inject src="projects/prompt_engineering/knowledge_base/current_structure.txt" />
+        <Inject src=".github/workflows/validate_pel.yml" />
+        <Inject src="scripts/validate_personas.py" />
+        <Inject src="scripts/pel_toolkit.py" />
+        <Inject src="scripts/kb_updater.py" />
+        <Inject src="scripts/kb_updater.py" />
+        <Inject src="scripts/kb_updater.py" />
+        <Inject src="scripts/pel-init.sh" />
+        <Inject src="README.md" />
+        <Inject src="Makefile" />
     </CanonicalDocuments>
 </KnowledgeBase>
