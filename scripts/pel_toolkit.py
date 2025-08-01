@@ -1,18 +1,20 @@
 # /scripts/pel_toolkit.py
-# Version: 3.1 (Stale Manifest Guardrail)
+# Version: 3.2
 
 import os
 import sys
 import yaml
 from pathlib import Path
 import re
-# Add datetime for timestamp comparisons
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # --- Configuration (Loaded from pel.config.yml) ---
+
 ROOT_DIR = Path(__file__).parent.parent
 CONFIG_FILE = ROOT_DIR / "pel.config.yml"
-# ... (rest of configuration is the same) ...
+PROJECTS_DIR_NAME = "projects"
+META_FILENAME = ".domain_meta"
+
 try:
     with open(CONFIG_FILE, 'r') as f:
         PEL_CONFIG = yaml.safe_load(f)
@@ -24,13 +26,14 @@ except yaml.YAMLError as e:
     print(f"FATAL: Error parsing {CONFIG_FILE}: {e}", file=sys.stderr)
     sys.exit(1)
 
-# --- NEW FUNCTION: Stale Manifest Check ---
 def is_manifest_stale(manifest_path, root_dir):
-    """Checks if the manifest is older than any recently modified persona file."""
+    """
+    Checks if the manifest is older than any recently modified persona file,
+    with a grace period to prevent race conditions.
+    """
     if not manifest_path.exists():
         return True, "Manifest file does not exist."
 
-    # We need to parse the timestamp from the YAML content, not just use file mtime
     with open(manifest_path, 'r', encoding='utf-8') as f:
         manifest_data = yaml.safe_load(f)
     
@@ -38,29 +41,36 @@ def is_manifest_stale(manifest_path, root_dir):
     if not generated_at_str:
         return True, "Manifest is missing the 'generated_at_utc' timestamp."
         
-    # Python 3.11+ can parse 'Z' for Zulu/UTC, for older versions we strip it.
     if generated_at_str.endswith('Z'):
         generated_at_str = generated_at_str[:-1]
     
     manifest_time = datetime.fromisoformat(generated_at_str)
+    # Add a 2-second grace period to the manifest time for comparison
+    manifest_time_with_grace = manifest_time + timedelta(seconds=2)
 
-    # Find all persona files using the same logic as the manifest generator
     sys.path.append(str(root_dir / "scripts"))
     from validate_personas import find_all_personas
     all_personas = find_all_personas(root_dir)
     
     for persona_path in all_personas:
-        # Compare persona file modification time to manifest generation time
         persona_mtime = datetime.fromtimestamp(persona_path.stat().st_mtime)
-        if persona_mtime > manifest_time:
+        if persona_mtime > manifest_time_with_grace:
             return True, f"Persona '{persona_path.name}' was modified after the manifest was generated."
             
     return False, "Manifest is up-to-date."
 
-# ... (find_project_root, get_template_path, find_persona_file, assemble_persona_content, inject_file_content are unchanged) ...
+
 def find_project_root(instance_path):
-    # ...
-    pass
+    """
+    Traverses up from the instance file to find the project root directory,
+    defined as the directory containing the '.domain_meta' file.
+    """
+    current_path = Path(instance_path).resolve().parent
+    while current_path != current_path.parent: # Stop at filesystem root
+        if (current_path / META_FILENAME).exists():
+            return current_path
+        current_path = current_path.parent
+    return None # Project root not found
 def get_template_path(project_root):
     # ...
     pass
@@ -76,7 +86,7 @@ def inject_file_content(mandate_body):
 
 def main(instance_file_path):
     """Main assembly function."""
-    instance_path = Path(instance_file_path).resolve()
+    instance_path = Path(instance_file_path)
     
     if not instance_path.exists():
         print(f"Error: Instance file not found at {instance_path}", file=sys.stderr)
@@ -111,13 +121,15 @@ def main(instance_file_path):
             sys.exit(1)
 
     try:
-        project_root = find_project_root(instance_path)
+        # Pass the absolute path to the root finder
+        project_root = find_project_root(instance_path.resolve())
         if not project_root:
-            print(f"Error: Could not determine project root for instance file: {instance_path}", file=sys.stderr)
+            # Use .resolve() only for the error message for clarity
+            print(f"Error: Could not determine project root for instance file: {instance_path.resolve()}", file=sys.stderr)
             sys.exit(1)
             
         template_path = get_template_path(project_root)
-
+        
         persona_path = find_persona_file(persona_alias, project_root, template_path)
         if not persona_path:
             print(f"Error: Persona '{persona_alias}' not found in project '{project_root.name}' or its template.", file=sys.stderr)

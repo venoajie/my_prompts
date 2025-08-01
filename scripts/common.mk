@@ -44,7 +44,7 @@ generate-prompt:
 	OUTPUT_FILE="$(BUILD_DIR)/$${INSTANCE_BASENAME}.prompt.xml"
 	
 	echo "Generating prompt for [$(INSTANCE)] -> [$${OUTPUT_FILE}]"
-	$(PYTHON_EXEC) "$(PEL_TOOLKIT_SCRIPT)" "$(INSTANCE)" > "$${OUTPUT_FILE}"
+	$(PYTHON_EXEC) "$(PEL_TOOLKIT_SCRIPT)" "$(INSTANCE)" > "$${OUTPUT_FILE}" || exit $$?
 	
 	@echo "$(GREEN)✓ Prompt generated successfully in $(BUILD_DIR)$(NC)"
 
