@@ -11,7 +11,7 @@ on:
       - main
 
 jobs:
-  # This job remains the same, ensuring your personas are always valid.
+  # This job ensures your personas are always valid.
   validate-personas:
     runs-on: ubuntu-latest
     steps:
@@ -31,7 +31,7 @@ jobs:
       - name: Run Persona Validator
         run: make validate
 
-  # This is the new job to run the unit tests for your Python code.
+  # This job runs the unit tests for your Python code.
   run-unit-tests:
     runs-on: ubuntu-latest
     steps:
@@ -41,7 +41,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12' # Matching the Python version used in testing
+          python-version: '3.12'
 
       - name: Install dependencies from requirements.txt
         run: |
