@@ -1,5 +1,5 @@
 version: '1.1'
-generated_at_utc: '2025-08-01T08:40:05.679047Z'
+generated_at_utc: '2025-08-01T09:26:49.856723Z'
 personas:
 - alias: ADA-1
   title: API Contract Architect
@@ -82,8 +82,9 @@ personas:
 - alias: SI-1
   title: Session Initiator
   description: To analyze a user's high-level goal, identify the most appropriate
-    specialist agent for the task, and generate the initial, structured `instance.md`
-    file required to formally begin the work session.
+    specialist agent for the task by consulting the persona manifest, and generate
+    the initial, structured `instance.md` file required to formally begin the work
+    session.
 - alias: SIA-1
   title: Systems Integrity Analyst
   description: To guide the resolution of a critical failure by identifying the root

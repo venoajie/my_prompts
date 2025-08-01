@@ -1,9 +1,5 @@
-# Makefile for the "$(PROJECT_NAME)" Project
+# projects\language_learning\Makefile
 # This Makefile inherits all its functionality from the common toolkit.
-
-# --- Project-Specific Configuration ---
-# Set this to the name of the project directory.
-PROJECT_NAME := language_learning # <-- CHANGE THIS TO 'prompt_engineering' FOR THE OTHER FILE
 
 # --- Include Common Logic ---
 # All functionality is inherited from this central file.

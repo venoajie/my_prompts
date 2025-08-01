@@ -1,8 +1,5 @@
-# Makefile for the "coding_trader_app" Project
+# projects\coding_trader_app\Makefile
 # Version: 2.1 (Refactored & Unified Help)
-
-# --- Project-Specific Configuration ---
-PROJECT_NAME := coding_trader_app
 
 # --- Include Common Logic ---
 # All common targets (generate-prompt, archive, clean) are inherited from here.
