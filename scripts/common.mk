@@ -44,11 +44,11 @@ generate-prompt:
 	OUTPUT_FILE="$(BUILD_DIR)/$${INSTANCE_BASENAME}.prompt.xml"
 	
 	echo "Generating prompt for [$(INSTANCE)] -> [$${OUTPUT_FILE}]"
-	$(PYTHON_EXEC) "$(PEL_TOOLKIT_SCRIPT)" "$(INSTANCE)" > "$${OUTPUT_FILE}" || exit $$?
+	$(PYTHON_EXEC) "$(ROOT_DIR)/pel.py" assemble "$(INSTANCE)" > "$${OUTPUT_FILE}" || exit $$?
 	
 	@echo "$(GREEN)✓ Prompt generated successfully in $(BUILD_DIR)$(NC)"
 
-# ... (rest of the file is unchanged) ...
+
 archive:
 	@if [ -z "$(INSTANCE)" ]; then exit 1; fi
 	@if [ ! -f "$(INSTANCE_DIR)/$(INSTANCE).instance.md" ]; then exit 1; fi
