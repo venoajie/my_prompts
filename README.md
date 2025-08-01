@@ -1,201 +1,107 @@
 # README.md
-# The Prompt Engineering Library (PEL)
 
-This repository is a systematic, version-controlled library for managing and deploying high-quality AI prompts. It treats prompts as production source code, subject to the same engineering rigor, including versioning, peer review, and automated composition.
+# Prompt Engineering Library (PEL)
 
-**Core Philosophy:** A prompt is not a command; it is the blueprint for an agent. This library provides the tools and architecture to build a powerful system of specialized AI agents.
+This repository is a systematic, scalable library for developing, testing, and managing expert AI agents and their prompts.
 
----
+## Core Philosophy
 
-## Core Architecture
+A prompt is not a command; it is the blueprint for an agent. The purpose of this library is to ensure that every blueprint is clear, robust, and capable of instantiating an expert AI that performs its function with maximum effectiveness and zero ambiguity.
 
-This library is built on a strict, principled architecture designed for maximum reusability, clarity, and scalability. It is composed of three primary layers:
+## Core Concepts
 
-#### 1. Declarative Blueprints (The "What")
+The PEL is built on a config-driven architecture that prioritizes clarity, consistency, and automation.
 
-These are the static, human- and machine-readable artifacts that define the system's knowledge and capabilities.
+1.  **Centralized Governance (`pel.config.yml`):** The architectural rules for the entire library—such as valid persona types and their required fields—are defined in the root `pel.config.yml` file. This is the single source of truth for system-wide standards.
 
--   **The Architectural Blueprint:** A single, version-controlled `PEL_BLUEPRINT.md` file. It is the constitution for the library, defining the intended state, core principles, and architectural rationale.
--   **The Engine:** A versioned set of core `system_kernel.xml` files that provide the foundational rules and execution protocols for all agents.
--   **Domains:** Self-contained workspaces for specific projects, each with its own curated, non-code `knowledge_base`.
--   **Personas:** Reusable, versioned agent blueprints defined in individual files, capable of inheritance to create specialized agents.
+2.  **Shared Automation (`scripts/common.mk`):** All common automation tasks (`generate-prompt`, `archive`, `clean`) are defined in a single, shared `scripts/common.mk` file. Project-specific `Makefile`s are now minimal stubs that `include` this common logic, ensuring a consistent developer experience across all projects.
 
-#### 2. Operational Tooling (The "How")
+3.  **Hierarchy:** The library follows a strict hierarchy:
+    *   **Templates (`/templates`):** Reusable skeletons for different types of projects.
+    *   **Projects (`/projects`):** A self-contained domain for a specific goal (e.g., `coding_trader_app`). Each project is created from a template.
+    *   **Instances (`/instances`):** A specific task or request for a persona to execute within a project.
 
-This is the automation layer that brings the declarative blueprints to life.
+## Core Workflow: A Quickstart
 
--   **The Assembly Script:** The `assemble_prompt.py` script is the core engine that implements the two-stage assembly process, including the AI-powered alignment check and the injection of all necessary context.
--   **The Automation Interface:** The `Makefile` is the primary user interface for all core workflows. It provides simple, standardized commands for complex operations like prompt generation and session synthesis.
+This is the standard lifecycle for working within the PEL.
 
-#### 3. Core Artifacts (The "Data")
+### 1. Creating a New Project
 
-These are the data objects that flow through the system during a task.
+All new projects MUST be created using the `pel-init.sh` script to ensure they are compliant with the current architecture.
 
--   **Instances:** A user-authored task definition in a `.instance.md` file. It activates a persona and provides the initial mandate and evidence.
--   **Handoff Artifacts:** Structured, machine-readable data contracts (typically JSON) that enable communication between sessions (`session_synthesis.json`) or between the PEL and external agents (`JULES_MANIFEST.json`).
-
-## Directory Structure
-
-The repository is organized to enforce the **Single Source of Truth** principle and to separate source artifacts from generated artifacts.
-
+```bash
+# Usage: ./scripts/pel-init.sh <template_name> <new_project_name>
+./scripts/pel-init.sh domain_coding_generic my_new_ai_project
 ```
-my-prompt-library/
-├── .github/ # CI/CD workflows (e.g., prompt validation)
-├── build/ # Generated, ephemeral artifacts (e.g., final prompts). Not version-controlled.
-├── engine/ # Contains versioned System Kernels
-│ └── v1/
-│ └── system_kernel.xml
-├── domains/ # Contains all specialized work areas
-│ └── [domain_name]/
-│ ├── personas/ # Domain-specific persona definitions (base/, mixins/, specialized/)
-│ ├── instances/ # Disposable, task-specific instance requests
-│ ├── workflows/ # Definitions for multi-step tasks
-│ └── knowledge_base/ # CURATED, NON-CODE artifacts (e.g., blueprints, strategy docs)
-│
-├── logs/ # Raw, unprocessed session logs. Not version-controlled.
-├── scripts/ # Helper scripts, like the prompt assembler
-├── src/ # Example: Your LIVE application source code
-│
-├── .gitignore # Specifies which files/directories to ignore
-├── Makefile # The primary automation tool for the library
-├── PEL_BLUEPRINT.md # The architectural constitution for this library
-└── README.md # This file
+This will create a new directory at `projects/my_new_ai_project` with the correct structure and a minimal, compliant `Makefile`.
+
+### 2. Creating a Persona
+
+Inside your project's `/personas` directory, create a new `.persona.md` file. The most critical part of a persona is its frontmatter, which must include a `type` key.
+
+```yaml
+---
+alias: my-new-agent-1
+version: 1.0.0
+type: specialized # Must be one of: specialized, base, mixin, utility
+title: My New Agent
+status: active
+inherits_from: btaa-1 # Base Technical Analysis Agent
+expected_artifacts:
+  - id: primary_mandate
+    type: primary
+    description: "A clear, specific goal for the agent to accomplish."
+---
+<philosophy>...</philosophy>
+<primary_directive>...</primary_directive>
+<operational_protocol>...</operational_protocol>
 ```
 
+### 3. Creating an Instance
+
+To run a persona, create an instance file in your project's `/instances` directory (e.g., `instances/run-my-agent.instance.md`).
+
+```yaml
 ---
-
-## Core Workflows
-
-This library is operated through three primary workflows.
-
-### 1. Determining Required Evidence
-
-Before writing an instance file, you must determine which documents the persona needs to perform its task. Follow this four-step protocol:
-
-1.  **Deconstruct the Mandate:** Identify the primary action (e.g., `refactor`, `debug`) and the subjects (e.g., `ReconciliationAgent`, `A1 optimization plan`). This gives you your initial list of artifacts.
-2.  **Consult the Persona's Blueprint:** Open the `.persona.md` file for your chosen agent. Its `operational_protocol` explicitly states what it expects to analyze or modify.
-3.  **Trace Dependencies:** Review the primary artifacts for dependencies (e.g., `import` statements in code, `volumes` in Docker Compose) to discover secondary evidence.
-4.  **Consider Failure Paths:** For debugging or testing, consider what other components are involved if the primary component fails (e.g., error handlers, loggers).
-
-### 2. Executing a Prompt (The Two-Stage Process)
-
-#### Step 1: Author an Instance File
-
-Navigate to the appropriate domain and create a new instance file (e.g., `instances/generate-unit-tests.instance.md`). The file uses YAML frontmatter to declare its domain and target persona.
-
-To include a file as context, use the `<Inject>` tag with a path relative to the **repository root**. This allows you to reference your live, actively-edited source code directly, with no copying required.
-
-**Example: `generate-unit-tests.instance.md`**
-```markdown
+persona_alias: my-new-agent-1
 ---
-domain: coding_trader_app
-persona_alias: ute-1
----
-
 <Mandate>
-Generate comprehensive unit tests for the `ReconciliationAgent` class found in the provided source code.
+  <primary_mandate>
+    This is the specific task I want my-new-agent-1 to perform.
+  </primary_mandate>
 </Mandate>
-
-<!-- This injects the LIVE source file, not a copy -->
-<Inject src="src/services/executor/deribit/reconciliation_agent.py" />
 ```
 
-#### Step 2: Assemble and Execute the Prompt
+### 4. Generating and Running a Prompt
 
-Use the `Makefile` to generate the final, complete prompt. This is the most reliable and standardized method.
-
+Navigate to your project directory and use the `generate-prompt` command.
 
 ```bash
-# This command generates the prompt and saves it to the build/ directory
-make generate-prompt INSTANCE=domains/coding_trader_app/instances/generate-unit-tests.instance.md
+cd projects/my_new_ai_project
+make generate-prompt INSTANCE=instances/run-my-agent.instance.md
+```
+This will create the final, fully-assembled prompt in the `/build/my_new_ai_project/` directory.
+
+### 5. Archiving a Completed Instance
+
+Once you are finished with an instance, archive it using the standardized `archive` command. This keeps the `/instances` directory clean.
+
+```bash
+# For a successful run
+make archive INSTANCE=run-my-agent
+
+# For a failed run
+make archive-failed INSTANCE=run-my-agent
+```
+This will move the instance file to `/instances/archive` with a standardized name (e.g., `2023-10-27_run-my-agent_complete.instance.md`).
+
+## Validation and CI
+
+To ensure all personas in the library are compliant with the architectural rules, run the master validation command from the repository root. This is the same command used by the GitHub Actions CI pipeline.
+
+```bash
+make validate
+```
 ```
 
-This will create a file like build/generate-unit-tests.prompt.xml. You can now open this file to review the full prompt before use.
-
-#### Step 3: Execute the Prompt
-Copy the contents of the generated .xml file and paste it into your preferred LLM interface.
-
-
-### 3. Managing and Resuming Sessions (The Handoff Workflow)
-
-To work on a complex task over multiple sessions without losing context or incurring high token costs, use the automated session synthesis workflow.
-
-#### Step 1: At the end of your session
-
-Save the entire conversation log to a file (e.g., `logs/session_log_01.md`).
-
-#### Step 2: Generate the Synthesis Prompt
-
-Run the `end-session` command in the Makefile, pointing it to your saved log file.
-
-```bash
-# This command automates the creation of the synthesis prompt
-make end-session LOG=logs/session_log_01.md
-```
-
-This command will not produce the final summary. Instead, it will generate a new prompt file (e.g., build/synthesize-session.prompt.xml) and display an "ACTION REQUIRED" message in your terminal.
-
-#### Step 3: Execute the Synthesis Prompt
-Copy the entire content of the generated .xml file and execute it with your LLM. The LLM, acting as the SESSION-SYNTHESIZER, will return a single, structured JSON object.
-
-#### Step 4: Save the Handoff Artifact
-Save the resulting JSON output to a file in your knowledge base (e.g., domains/prompt_engineering/knowledge_base/session_synthesis_01.json).
-
-#### Step 5: To resume your session
-Use an instance prompt that injects the small, structured session_synthesis_01.json file, not the original large log.
-
-#### Step 6: Delegated Execution via Jules (Optional Advanced Workflow)
-
-For complex tasks, you can delegate the final implementation to an external agent like Jules. This workflow has two modes, depending on your task.
-
-> **Safety Notice: Commit-Locked Execution**
-> To ensure safety and predictability, all interactions with Jules are now automatically locked to the specific version of your code at the moment you generate the prompt. The system injects the current Git commit hash, and Jules is instructed to check out this exact version before starting work. This prevents race conditions and ensures Jules always operates on the context you intended.
-
-This workflow has two modes, depending on your task.
-
-#### Mode A: Executing Pre-Generated Code (Manifest-based)
-
-Use this mode when you have already used a PEL persona (like `CSA-1`) to generate and approve a set of code artifacts.
-
-1.  **Generate a Jules Manifest:** Use the `JIA-1` (Jules Integration Architect) persona to create a machine-readable `JULES_MANIFEST.json` instruction file from your generated code.
-    ```bash
-    make generate-manifest-prompt INSTANCE=path/to/create-manifest.instance.md
-    ```
-2.  **Execute with Jules:** Provide the resulting `JULES_MANIFEST.json` to the Jules agent.
-
-Use this mode for tasks like writing documentation, refactoring a class, or creating a new feature from scratch.
-
-1.  **Generate a Guided Task Prompt:** Use the `JTA-1` (Jules Task Architect) persona to convert your high-level goal into a perfect, context-rich prompt for Jules.
-    ```bash
-    make generate-jules-task INSTANCE=path/to/create-task.instance.md
-    ```
-2.  **Use the Output:** The generated prompt will include both a "Guided Prompt for Jules" and a "Recommended Persona and Prompt" section to help you frame your interaction effectively.
-
-#### Reviewing the Results
-
-After either mode, Jules may provide a `JULES_REPORT.json`. Use the `JRI-1` persona to get a human-readable summary of the outcome.
-```bash
-make review-report REPORT=path/to/JULES_REPORT.json
-    ```
-
-### 4. Generating the Agent Manifest
-
-To ensure the high-level `PEL_AGENTS.md` file is always up-to-date with the latest personas in the library, use the automated generation command.
-
-```bash
-# This command finds all personas and generates a prompt to create the manifest
-make generate-manifest
-    ```
-
-
-### 5. Auditing the Library (Maintaining Health)
-
-To prevent architectural decay, the library includes a built-in audit workflow. This process uses the PEL Auditor (PELA-1) persona to perform a gap analysis between the PEL_BLUEPRINT.md and the actual state of the repository.
-
-This is a periodic health check you should run to receive an actionable report on how to improve your library's structure, scripts, and documentation.
-
-```bash
-# Run the built-in audit to get a "State of the Library" report
-make generate-prompt INSTANCE=domains/prompt_engineering/instances/run-quarterly-audit.instance.md
-```
-
+---
