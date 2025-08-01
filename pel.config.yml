@@ -37,7 +37,6 @@ persona_types:
       - "version"
       - "title"
       - "status"
-      - "expected_artifacts"
 
 # Defines the standard for instance files and their lifecycle.
 instance_governance:

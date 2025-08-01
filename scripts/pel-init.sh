@@ -41,27 +41,50 @@ fi
 # --- Scaffolding Logic ---
 echo -e "Initializing new project '${PROJECT_NAME}' from template '${TEMPLATE_NAME}'..."
 
-# 1. Create project root directory
-mkdir -p "${PROJECT_DIR}"
-echo -e "  ${GREEN}✓${NC} Created project directory: ${PROJECT_DIR}"
-
-# 2. Copy and rename governance files
-cp "${TEMPLATE_DIR}/Makefile.template" "${PROJECT_DIR}/Makefile"
-cp "${TEMPLATE_DIR}/DOMAIN_BLUEPRINT.md.template" "${PROJECT_DIR}/DOMAIN_BLUEPRINT.md"
-echo -e "  ${GREEN}✓${NC} Copied Makefile and DOMAIN_BLUEPRINT.md"
-
-# 3. Create standard subdirectories for the project
+# 1. Create project root and subdirectories
 mkdir -p "${PROJECT_DIR}/personas/specialized"
-mkdir -p "${PROJECT_DIR}/instances"
+mkdir -p "${PROJECT_DIR}/instances/archive"
 mkdir -p "${PROJECT_DIR}/knowledge_base"
 mkdir -p "${PROJECT_DIR}/workflows"
-echo -e "  ${GREEN}✓${NC} Created standard subdirectories (personas, instances, etc.)"
+echo -e "  ${GREEN}✓${NC} Created standard directory structure."
 
-# 4. Create a metadata file to link project to its template
+# 2. Generate the new, minimal Makefile
+# CORRECTED: Instead of copying a template, we generate the correct stub.
+cat > "${PROJECT_DIR}/Makefile" << EOL
+# Makefile for the "${PROJECT_NAME}" Project
+# This Makefile inherits all its functionality from the common toolkit.
+
+# --- Project-Specific Configuration ---
+PROJECT_NAME := ${PROJECT_NAME}
+
+# --- Include Common Logic ---
+include ../../scripts/common.mk
+
+# --- Target Declarations ---
+.PHONY: help
+.DEFAULT_GOAL := help
+
+# --- Unified Help Target ---
+help:
+	@echo "$(BLUE)================================================================\$(NC)"
+	@echo "  Project: \$(PROJECT_NAME)"
+	@echo "$(BLUE)================================================================\$(NC)"
+	@echo ""
+	@echo "$(YELLOW)Usage: make <command> [ARGS...]\$(NC)"
+	@echo ""
+	@echo "$(GREEN)Available Commands:\$(NC)"
+	@echo "  make generate-prompt INSTANCE=<path>    - Assembles a final prompt from an instance file. (Inherited)"
+	@echo "  make archive INSTANCE=<name>            - Archives a completed instance with status 'complete'. (Inherited)"
+	@echo "  make archive-failed INSTANCE=<name>     - Archives a completed instance with status 'failed'. (Inherited)"
+	@echo "  make clean-backups                      - Removes all .bak files from the instances directory. (Inherited)"
+	@echo "  make clean                              - Cleans all generated build artifacts for this project. (Inherited)"
+	@echo ""
+EOL
+echo -e "  ${GREEN}✓${NC} Generated minimal, compliant Makefile."
+
+# 3. Copy DOMAIN_BLUEPRINT and create .domain_meta
+cp "${TEMPLATE_DIR}/DOMAIN_BLUEPRINT.md.template" "${PROJECT_DIR}/DOMAIN_BLUEPRINT.md"
 echo "template: ${TEMPLATE_NAME}" > "${PROJECT_DIR}/.domain_meta"
-echo -e "  ${GREEN}✓${NC} Created .domain_meta file to track template inheritance"
+echo -e "  ${GREEN}✓${NC} Copied DOMAIN_BLUEPRINT.md and created .domain_meta file."
 
 echo -e "\n${GREEN}Project '${PROJECT_NAME}' created successfully.${NC}"
-echo -e "Next steps:"
-echo -e "1. Add your specialized personas to '${PROJECT_DIR}/personas/specialized/'"
-echo -e "2. Customize '${PROJECT_DIR}/DOMAIN_BLUEPRINT.md' for your project."
