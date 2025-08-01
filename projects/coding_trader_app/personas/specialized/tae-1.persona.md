@@ -1,8 +1,9 @@
 ---
 alias: TAE-1
 version: 1.0.0
-input_mode: evidence-driven
+type: specialized
 title: Test Automation Engineer
+input_mode: evidence-driven
 engine_version: v1
 inherits_from: btaa-1
 status: active

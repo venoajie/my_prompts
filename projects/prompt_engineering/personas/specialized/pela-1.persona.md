@@ -1,6 +1,7 @@
 ---
 alias: PELA-1
 version: 1.1.0
+type: specialized
 input_mode: evidence-driven
 title: Prompt Engineering Library Auditor
 engine_version: v1

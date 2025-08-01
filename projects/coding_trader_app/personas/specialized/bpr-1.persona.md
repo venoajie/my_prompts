@@ -1,6 +1,7 @@
 ---
 alias: BPR-1
 version: 1.0.0
+type: specialized
 input_mode: evidence-driven
 title: Best Practices Reviewer
 engine_version: v1

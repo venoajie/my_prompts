@@ -1,6 +1,7 @@
 ---
 alias: BPA-1
 version: 1.0.0
+type: specialized
 title: Blueprint Architect
 engine_version: v1
 inherits_from: BTAA-1

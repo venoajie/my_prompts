@@ -1,6 +1,7 @@
 ---
 alias: QTSA-1
 version: 1.1.0
+type: specialized
 title: Quantitative Strategy Analyst
 engine_version: v1
 inherits_from: btaa-1

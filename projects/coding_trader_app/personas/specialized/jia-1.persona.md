@@ -1,6 +1,7 @@
 ---
 alias: JIA-1
 version: 2.0.0
+type: specialized
 title: Jules Integration Architect
 engine_version: v1
 inherits_from: BTAA-1

@@ -1,7 +1,7 @@
 ---
 alias: SIA-1
 version: 1.0.0
-input_mode: evidence-driven
+type: specializedinput_mode: evidence-driven
 title: Systems Integrity Analyst
 engine_version: v1
 inherits_from: btaa-1

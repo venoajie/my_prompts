@@ -1,7 +1,8 @@
 ---
 alias: jri-1
-title: Jules Report Ingestor
 version: 1.1.0
+type: specialized
+title: Jules Report Ingestor
 engine_version: v1
 inherits_from: bcaa-1
 status: active

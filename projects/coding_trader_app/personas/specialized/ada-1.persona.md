@@ -1,6 +1,7 @@
 ---
 alias: ADA-1
 version: 1.0.0
+type: specialized
 input_mode: evidence-driven
 title: API Contract Architect
 engine_version: v1

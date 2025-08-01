@@ -1,6 +1,7 @@
 ---
 alias: CODEGEN-STANDARDS-1
 version: 2.0.0
+type: mixin
 title: Code Generation Standards Mixin
 engine_version: v1
 status: active

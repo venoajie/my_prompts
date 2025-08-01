@@ -1,6 +1,7 @@
 ---
 alias: BTAA-1
 version: 1.0.0
+type: base
 title: Base Technical Analysis Agent
 engine_version: v1
 inherits_from: codegen-standards-1

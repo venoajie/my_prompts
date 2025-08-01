@@ -1,6 +1,7 @@
 ---
 alias: OCIA-1
 version: 1.2.0
+type: specialized
 title: Oracle Cloud Infrastructure Analyst
 engine_version: v1
 inherits_from: btaa-1

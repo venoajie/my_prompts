@@ -1,6 +1,7 @@
 ---
 alias: KB-METADATA-GENERATOR
 version: 1.0.0
+type: specialized
 input_mode: evidence-driven
 title: Knowledge Base Metadata Generator
 engine_version: v1
