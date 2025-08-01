@@ -43,7 +43,7 @@ help:
 
 validate:
 	@echo "$(BLUE)--- Validating All Active Personas ---$(NC)"
-	@$(PYTHON_EXEC) scripts/validate_personas.py
+	@$(PYTHON_EXEC) -m scripts/validate_personas.py
 
 update-kb:
 	@echo "Updating knowledge base inventory..."
