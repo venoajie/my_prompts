@@ -2,3 +2,6 @@
 pyyaml
 beautifulsoup4
 lxml
+pytest
+pytest-mock
+pyfakefs
