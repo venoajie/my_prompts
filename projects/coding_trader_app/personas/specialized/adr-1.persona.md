@@ -10,7 +10,7 @@ status: active
 expected_artifacts:
   - id: decision_context
     type: primary
-    description: "A document or mandate describing the technical decision that needs to be made."
+    description: "A detailed mandate describing the technical problem, constraints, and the specific decision that needs to be recorded."
   - id: related_artifacts
     type: optional
     description: "Supporting evidence such as blueprints, roadmaps, or relevant source code."

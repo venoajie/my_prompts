@@ -10,7 +10,7 @@ status: active
 expected_artifacts:
   - id: api_requirements
     type: primary
-    description: "A document outlining the requirements for the new API endpoint or service."
+    description: "A natural-language mandate detailing the goal, data payload, and success criteria for a new API endpoint."
 ---
 
 <philosophy>An API is a permanent contract. It must be designed with foresight, prioritizing clarity, consistency, and stability for its consumers.</philosophy>

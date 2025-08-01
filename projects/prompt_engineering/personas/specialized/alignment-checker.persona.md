@@ -1,7 +1,7 @@
 ---
 alias: alignment-checker
 version: 1.0.0
-type: specialized
+type: utility
 title: Mandate Alignment Checker
 engine_version: v1
 status: active

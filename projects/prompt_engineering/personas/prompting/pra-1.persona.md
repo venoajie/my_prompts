@@ -1,7 +1,7 @@
 ---
 alias: PRA-1
 version: 1.0.0
-type: specialized
+type: utility
 title: PEL Refactoring Agent
 engine_version: v1
 status: active
