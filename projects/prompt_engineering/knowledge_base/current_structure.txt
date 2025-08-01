@@ -163,8 +163,11 @@
 │               └── ute-1.persona.md
 ├── tests
 │   ├── __init__.py
-│   └── test_pel_toolkit.py
+│   ├── test_generate_manifest.py
+│   ├── test_kb_updater.py
+│   ├── test_pel_toolkit.py
+│   └── test_validate_personas.py
 └── workflows
     └── _template_workflow.md
 
-40 directories, 125 files
+40 directories, 128 files
