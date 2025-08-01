@@ -10,6 +10,11 @@ PYTHON_EXEC := $(shell command -v python3 || command -v python)
 PEL_TOOLKIT_SCRIPT = ../../scripts/pel_toolkit.py
 BUILD_DIR = ../../build/$(shell basename `pwd`) # Project-specific build dir
 
+# --- Configuration ---
+INSTANCE_DIR := instances
+ARCHIVE_DIR := $(INSTANCE_DIR)/archive
+TODAY := $(shell date +%Y-%m-%d)
+
 # ANSI Color codes
 GREEN = \033[0;32m
 YELLOW = \033[1;33m

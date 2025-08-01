@@ -41,13 +41,16 @@ persona_types:
 
 # Defines the standard for instance files and their lifecycle.
 instance_governance:
+  # Defines the directory where completed instances will be moved.
+  archive_dir: "archive"
+  # Defines the standardized filename format for archived instances.
+  # Example: 2023-10-27_implement-auth-v2_complete.instance.md
   filename_format: "{YYYY-MM-DD}_{instance_id}_{status}.instance.md"
   valid_stati:
     - "pending"
     - "complete"
     - "failed"
-  archive_on_complete: true
-  
+    
 # Defines which persona statuses the validation script should process.
 # Any persona with a status not in this list will be skipped.
 validation_rules:
