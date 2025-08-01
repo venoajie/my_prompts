@@ -43,12 +43,14 @@ help:
 
 validate:
 	@echo "$(BLUE)--- Validating All Active Personas ---$(NC)"
-	@$(PYTHON_EXEC) -m scripts/validate_personas.py
+	# **FIX**: Changed from a file path to the correct module path for the -m flag.
+	@$(PYTHON_EXEC) -m scripts.validate_personas
 
 update-kb:
 	@echo "Updating knowledge base inventory..."
-	@$(PYTHON_EXEC) scripts/kb_updater.py
+	# Updated for consistency.
+	@$(PYTHON_EXEC) -m scripts.kb_updater
 
-	
 generate-manifest:
-	@$(PYTHON_EXEC) scripts/generate_manifest.py
+	# Updated for consistency.
+	@$(PYTHON_EXEC) -m scripts.generate_manifest
