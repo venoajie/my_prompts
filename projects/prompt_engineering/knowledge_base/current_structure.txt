@@ -1,13 +1,18 @@
 # projects\prompt_engineering\knowledge_base\current_structure.txt
-# as of 1 Aug 25, 08:26 AM
+# as of 1 Aug 25, 6:16 PM
 .
 ├── build
-│   └── generate-manifest.prompt.xml
+│   ├── generate-manifest.prompt.xml
+│   └── prompt_engineering
+│       └── create-ute-tests.prompt.xml
 ├── engine
 │   └── v1
 │       └── system_kernel.xml
 ├── Here is the implementation plan for refa.txt
+├── knowledge_base_inventory.yml
 ├── Makefile
+├── pel.config.yml
+├── persona_manifest.yml
 ├── projects
 │   ├── coding_trader_app
 │   │   ├── DOMAIN_BLUEPRINT.md
@@ -32,6 +37,7 @@
 │   │   │   ├── refactor-blueprint-for-ai.instance.md
 │   │   │   ├── resume-architect-session.instance.md
 │   │   │   ├── run-quarterly-audit.instance.md
+│   │   │   ├── test-complex.instance.md
 │   │   │   └── update-readme-for-multi-env.instance.md
 │   │   ├── knowledge_base
 │   │   │   ├── a1_flex_optimization_plan.md
@@ -78,14 +84,12 @@
 │   │   │       ├── jri-1.persona.md
 │   │   │       ├── jta-1.persona.md
 │   │   │       ├── kb-metadata-generator.persona.md
-│   │   │       ├── ocia-1.persona.md
 │   │   │       ├── pba-1.persona.md
 │   │   │       ├── qsa-1.persona.md
 │   │   │       ├── qtsa-1.persona.md
 │   │   │       ├── sia-1.persona.md
 │   │   │       ├── sva-1.persona.md
-│   │   │       ├── tae-1.persona.md
-│   │   │       └── ute-1.persona.md
+│   │   │       └── tae-1.persona.md
 │   │   ├── readme.md
 │   │   ├── README.md
 │   │   └── workflows
@@ -93,6 +97,11 @@
 │   │       └── _template.workflow.md
 │   ├── language_learning
 │   │   ├── DOMAIN_BLUEPRINT.md
+│   │   ├── instances
+│   │   │   ├── archive
+│   │   │   │   └── 2025-08-01_test-archive_complete.instance.md
+│   │   │   ├── test-reuse.instance.md
+│   │   │   └── test-simple.instance.md
 │   │   ├── Makefile
 │   │   └── personas
 │   │       └── specialized
@@ -100,23 +109,29 @@
 │   └── prompt_engineering
 │       ├── DOMAIN_BLUEPRINT.md
 │       ├── instances
+│       │   ├── 01-generate-pel-toolkit-tests.instance.md
 │       │   ├── architect-briefing.instance.md
 │       │   ├── architect-briefing-session-end.instance.md
 │       │   ├── briefing-architect-briefing.instance.md
-│       │   └── pel-a.instance.md
+│       │   ├── create-ute-tests.instance.md
+│       │   ├── pel-a.instance.md
+│       │   └── start-new-session.instance.md
 │       ├── knowledge_base
+│       │   ├── basic_files_for_injection.md
 │       │   ├── current_structure.txt
-│       │   ├── error_report_from_github.md
 │       │   ├── jules_manifest.schema.json
 │       │   ├── session_synthesis_01.json
 │       │   └── SPEC-JULES-INTEGRATION-V2.md
 │       ├── Makefile
 │       └── personas
 │           ├── base
-│           │   └── bcaa-1.persona.md
+│           │   ├── bcaa-1.persona.md
+│           │   └── btaa-1.persona.md
 │           ├── deprecated
 │           │   ├── persona_pel-architect_v1.0.md
 │           │   └── persona_pel-architect_v2.0.md
+│           ├── mixins
+│           │   └── codegen-standards-1.mixin.md
 │           ├── prompting
 │           │   ├── pel-a.persona_v4.0.md
 │           │   ├── persona_gemini_analyst.md
@@ -124,24 +139,32 @@
 │           └── specialized
 │               ├── alignment-checker.persona.md
 │               ├── pela-1.persona.md
-│               └── session-synthesizer.persona.md
+│               ├── session-synthesizer.persona.md
+│               └── si-1.persona.md
 ├── README.md
 ├── requirements.txt
 ├── scripts
+│   ├── common.mk
+│   ├── generate_manifest.py
+│   ├── __init__.py
 │   ├── kb_updater.py
 │   ├── pel-init.sh
 │   ├── pel_toolkit.py
+│   ├── __pycache__
+│   │   └── validate_personas.cpython-39.pyc
 │   └── validate_personas.py
 ├── templates
 │   └── domain_coding_generic
 │       ├── DOMAIN_BLUEPRINT.md.template
 │       ├── Makefile.template
 │       └── personas
-│           ├── base
-│           │   └── btaa-1.persona.md
-│           └── mixins
-│               └── codegen-standards-1.mixin.md
+│           └── specialized
+│               ├── ocia-1.persona.md
+│               └── ute-1.persona.md
+├── tests
+│   ├── __init__.py
+│   └── test_pel_toolkit.py
 └── workflows
     └── _template_workflow.md
 
-35 directories, 107 files
+40 directories, 125 files
