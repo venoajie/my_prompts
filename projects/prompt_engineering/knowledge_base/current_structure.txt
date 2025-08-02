@@ -12,6 +12,7 @@
 ├── knowledge_base_inventory.yml
 ├── Makefile
 ├── pel.config.yml
+├── pel.py
 ├── persona_manifest.yml
 ├── projects
 │   ├── coding_trader_app
@@ -99,9 +100,9 @@
 │   │   ├── DOMAIN_BLUEPRINT.md
 │   │   ├── instances
 │   │   │   ├── archive
-│   │   │   │   └── 2025-08-01_test-archive_complete.instance.md
-│   │   │   ├── test-reuse.instance.md
-│   │   │   └── test-simple.instance.md
+│   │   │   │   ├── 2025-08-01_test-archive_complete.instance.md
+│   │   │   │   └── 2025-08-01_test-simple_complete.instance.md
+│   │   │   └── test-reuse.instance.md
 │   │   ├── Makefile
 │   │   └── personas
 │   │       └── specialized
@@ -141,6 +142,7 @@
 │               ├── pela-1.persona.md
 │               ├── session-synthesizer.persona.md
 │               └── si-1.persona.md
+├── pytest.ini
 ├── README.md
 ├── requirements.txt
 ├── scripts
@@ -150,9 +152,11 @@
 │   ├── kb_updater.py
 │   ├── pel-init.sh
 │   ├── pel_toolkit.py
+│   ├── pel_utils.py
 │   ├── __pycache__
 │   │   └── validate_personas.cpython-39.pyc
 │   └── validate_personas.py
+├── steps
 ├── templates
 │   └── domain_coding_generic
 │       ├── DOMAIN_BLUEPRINT.md.template
@@ -170,4 +174,4 @@
 └── workflows
     └── _template_workflow.md
 
-40 directories, 128 files
+40 directories, 132 files
